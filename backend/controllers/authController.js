@@ -6,6 +6,8 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const speakeasy = require('speakeasy');
 const qrcode = require('qrcode');
+const validator = require('validator');
+
 const userModel = require('../models/userModel');
 
 // Configurar transporte de Nodemailer
@@ -67,6 +69,43 @@ const register = async (req, res) => {
   const { nombre, apellidoPaterno, apellidoMaterno, telefono, edad, sexo, correo, password, tipo, recaptchaValue } = req.body;
 
   try {
+    // Validar nombre, apellidos y teléfono para evitar caracteres no deseados
+    if (!validator.isAlpha(nombre, 'es-ES', { ignore: ' ' })) {
+      return res.status(400).json({ message: 'El nombre solo debe contener letras.' });
+    }
+    if (!validator.isAlpha(apellidoPaterno, 'es-ES', { ignore: ' ' })) {
+      return res.status(400).json({ message: 'El apellido paterno solo debe contener letras.' });
+    }
+    if (!validator.isAlpha(apellidoMaterno, 'es-ES', { ignore: ' ' })) {
+      return res.status(400).json({ message: 'El apellido materno solo debe contener letras.' });
+    }
+    if (!validator.isMobilePhone(telefono, 'es-MX')) {
+      return res.status(400).json({ message: 'El número de teléfono no es válido.' });
+    }
+    if (!validator.isInt(edad, { min: 1 })) {
+      return res.status(400).json({ message: 'La edad debe ser un número mayor a 0.' });
+    }
+    if (!validator.isEmail(correo)) {
+      return res.status(400).json({ message: 'El correo electrónico no es válido.' });
+    }
+
+    // Sanitización de las entradas
+    const sanitizedNombre = validator.escape(nombre);
+    const sanitizedApellidoPaterno = validator.escape(apellidoPaterno);
+    const sanitizedApellidoMaterno = validator.escape(apellidoMaterno);
+    const sanitizedCorreo = validator.escape(correo);
+
+    // Validar la fortaleza de la contraseña
+    if (!validator.isStrongPassword(password, {
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1
+    })) {
+      return res.status(400).json({ message: 'La contraseña no es lo suficientemente fuerte.' });
+    }
+
     // Verificar el token de reCAPTCHA
     const recaptchaSuccess = await verificarReCAPTCHA(recaptchaValue);
     if (!recaptchaSuccess) {
@@ -85,7 +124,7 @@ const register = async (req, res) => {
     const mfaSecret = generarMFASecret();
 
     // Verificar si el usuario ya existe (correo o teléfono)
-    userModel.findUserByEmailOrPhone(correo, telefono, async (err, result) => {
+    userModel.findUserByEmailOrPhone(sanitizedCorreo, telefono, async (err, result) => {
       if (err) {
         console.error('Error en la búsqueda del usuario:', err);
         return res.status(500).json({ error: 'Error al buscar el usuario' });
@@ -94,19 +133,16 @@ const register = async (req, res) => {
       if (result.length > 0) {
         const usuario = result[0];
         if (usuario.verificado) {
-          // El correo o teléfono ya están registrados y verificados
           return res.status(400).json({ message: 'El correo o el teléfono ya están registrados.' });
         } else {
-          // El usuario ya existe pero no ha sido verificado
           const nuevoCodigo = generarCodigoVerificacion();
           const nuevaExpiracion = new Date(Date.now() + 3 * 60 * 1000); // Nueva expiración de 3 minutos
 
-          // Actualizar los datos del usuario no verificado
           userModel.updateUserData(
-            correo,
-            nombre,
-            apellidoPaterno,
-            apellidoMaterno,
+            sanitizedCorreo,
+            sanitizedNombre,
+            sanitizedApellidoPaterno,
+            sanitizedApellidoMaterno,
             telefono,
             edad,
             sexo,
@@ -114,25 +150,24 @@ const register = async (req, res) => {
             nuevoCodigo,
             nuevaExpiracion,
             mfaSecret,
-            (err, result) => {
+            (err) => {
               if (err) {
                 console.error('Error al actualizar los datos del usuario:', err);
                 return res.status(500).json({ error: 'Error al actualizar los datos del usuario' });
               }
 
               // Enviar nuevo correo de verificación
-              enviarCorreoVerificacion(correo, nuevoCodigo);
+              enviarCorreoVerificacion(sanitizedCorreo, nuevoCodigo);
               return res.status(200).json({ message: 'Datos actualizados y código de verificación reenviado. Revisa tu correo para verificar tu cuenta.' });
             }
           );
         }
       } else {
-        // Si no existe el usuario, crear uno nuevo
         const codigoVerificacion = generarCodigoVerificacion();
         const expirationTime = new Date(Date.now() + 3 * 60 * 1000); // 3 minutos
 
         userModel.createUser(
-          nombre, apellidoPaterno, apellidoMaterno, telefono, edad, sexo, correo, 
+          sanitizedNombre, sanitizedApellidoPaterno, sanitizedApellidoMaterno, telefono, edad, sexo, sanitizedCorreo, 
           hashedPassword, tipo || 'paciente', codigoVerificacion, expirationTime, mfaSecret, 
           (err) => {
             if (err) {
@@ -141,7 +176,7 @@ const register = async (req, res) => {
             }
 
             // Enviar correo de verificación
-            enviarCorreoVerificacion(correo, codigoVerificacion);
+            enviarCorreoVerificacion(sanitizedCorreo, codigoVerificacion);
             return res.status(201).json({ message: 'Usuario registrado con éxito. Revisa tu correo para verificar tu cuenta.' });
           }
         );

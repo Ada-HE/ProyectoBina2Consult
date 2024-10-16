@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
+import DOMPurify from 'dompurify'; // Importa DOMPurify
 
 const theme = createTheme({
   palette: {
@@ -220,7 +221,7 @@ function Login() {
 
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={successMessage ? "success" : "error"} sx={{ width: '100%' }}>
-          {successMessage || error}
+          {DOMPurify.sanitize(successMessage || error)}  {/* Sanitiza el mensaje antes de mostrarlo */}
         </Alert>
       </Snackbar>
     </ThemeProvider>
