@@ -25,6 +25,8 @@ export const validarPassword = (password) => {
 };
 
 export const validarStep1 = (nombre, apellidoPaterno, apellidoMaterno, telefono, edad, sexo, mostrarAlerta) => {
+  const validSexOptions = ['Hombre', 'Mujer', 'No especificado'];
+
   if (!nombre || !apellidoPaterno || !apellidoMaterno || !telefono || !edad || !sexo) {
     mostrarAlerta('Por favor, completa todos los campos del paso actual');
     return false;
@@ -45,8 +47,15 @@ export const validarStep1 = (nombre, apellidoPaterno, apellidoMaterno, telefono,
     return false;
   }
 
+  // Validación del campo sexo
+  if (!validSexOptions.includes(sexo)) {
+    mostrarAlerta('El valor proporcionado para el campo Sexo no es válido.');
+    return false;
+  }
+
   return true;
 };
+
 
 // Función para manejar el registro
 export const handleSubmit = async (

@@ -103,7 +103,7 @@ function Registro() {
       setStep(step + 1);  // Avanzar al siguiente paso
     }
   };
-  
+
 
   const handlePrevious = () => setStep(step - 1);
 
@@ -113,7 +113,7 @@ function Registro() {
       mostrarAlerta('La contraseña es demasiado débil. Por favor, elige una contraseña más fuerte.');
       return;
     }
-  
+
     handleSubmit(
       e,
       password,
@@ -135,7 +135,7 @@ function Registro() {
       correo
     );
   };
-  
+
 
   const handleSubmitVerificationCode = (e) => {
     e.preventDefault();
@@ -147,7 +147,7 @@ function Registro() {
       (mensajeExito) => {
         mostrarExito("¡Registro exitoso! Serás redirigido al inicio de sesión.");  // Mostrar mensaje de éxito personalizado
         setStep(3);  // Mantén el paso para que el mensaje sea visible
-  
+
         // Esperar 3 segundos antes de redirigir al componente Login
         setTimeout(() => {
           navigate("/login");
@@ -156,7 +156,7 @@ function Registro() {
       setStep
     );
   };
-  
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -173,17 +173,17 @@ function Registro() {
               </Typography>
             </Box>
           </Grid>
-  
+
           <Grid item xs={12} md={6} style={{ backgroundColor: '#ffffff', padding: '40px' }}>
             <Box display="flex" flexDirection="column" justifyContent="center" height="100%">
               {step === 1 && (
                 <>
                   <Typography variant="h4" color="primary" mb={3}>
-                    {DOMPurify.sanitize('Información Personal')}  
+                    {DOMPurify.sanitize('Información Personal')}
                   </Typography>
                   <form>
                     <TextField
-                      label={DOMPurify.sanitize("Nombre")}  
+                      label={DOMPurify.sanitize("Nombre")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -191,7 +191,7 @@ function Registro() {
                       onChange={(e) => setNombre(e.target.value)}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Apellido Paterno")}  
+                      label={DOMPurify.sanitize("Apellido Paterno")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -199,7 +199,7 @@ function Registro() {
                       onChange={(e) => setApellidoPaterno(e.target.value)}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Apellido Materno")}  
+                      label={DOMPurify.sanitize("Apellido Materno")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -207,7 +207,7 @@ function Registro() {
                       onChange={(e) => setApellidoMaterno(e.target.value)}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Teléfono")}  
+                      label={DOMPurify.sanitize("Teléfono")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -215,17 +215,17 @@ function Registro() {
                       onChange={(e) => setTelefono(e.target.value)}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Edad")}  
+                      label={DOMPurify.sanitize("Edad")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
                       value={edad}
                       onChange={(e) => setEdad(e.target.value)}
                     />
-  
+
                     <TextField
                       select
-                      label={DOMPurify.sanitize("Sexo")}  
+                      label={DOMPurify.sanitize("Sexo")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -234,15 +234,17 @@ function Registro() {
                     >
                       <MenuItem value="Hombre">Hombre</MenuItem>
                       <MenuItem value="Mujer">Mujer</MenuItem>
+                      <MenuItem value="No especificado">No especificado</MenuItem>
                     </TextField>
-  
+
+
                     <Button type="button" fullWidth variant="contained" color="primary" style={{ marginTop: '20px' }} onClick={handleNext}>
                       Siguiente
                     </Button>
                   </form>
                 </>
               )}
-  
+
               {step === 2 && (
                 <>
                   <Typography variant="h4" color="primary" mb={3}>
@@ -250,7 +252,7 @@ function Registro() {
                   </Typography>
                   <form onSubmit={handleSubmitRegistro}>
                     <TextField
-                      label={DOMPurify.sanitize("Correo electrónico")}  
+                      label={DOMPurify.sanitize("Correo electrónico")}
                       type="email"
                       variant="outlined"
                       fullWidth
@@ -259,7 +261,7 @@ function Registro() {
                       onChange={(e) => setCorreo(e.target.value)}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Contraseña")} 
+                      label={DOMPurify.sanitize("Contraseña")}
                       type="password"
                       variant="outlined"
                       fullWidth
@@ -268,7 +270,7 @@ function Registro() {
                       onChange={handlePasswordChange}
                     />
                     <TextField
-                      label={DOMPurify.sanitize("Confirmar Contraseña")}  
+                      label={DOMPurify.sanitize("Confirmar Contraseña")}
                       type="password"
                       variant="outlined"
                       fullWidth
@@ -276,7 +278,7 @@ function Registro() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                     />
-  
+
                     {/* Medidor de fortaleza de contraseña */}
                     <Box display="flex" alignItems="center" mt={2}>
                       {getPasswordStrengthIcon(passwordStrength)}  {/* Ícono de candado */}
@@ -290,12 +292,12 @@ function Registro() {
                       color={getPasswordStrengthColor(passwordStrength)}
                       style={{ marginTop: '10px', marginBottom: '10px' }}
                     />
-  
+
                     <ReCAPTCHA
                       sitekey="6LdvPV0qAAAAALN8D83yD7YMB-a0skkSauIOAcOC"
                       onChange={handleRecaptchaChange}
                     />
-  
+
                     <Box display="flex" justifyContent="space-between" mt={3}>
                       <Button variant="contained" color="secondary" onClick={handlePrevious}>
                         Anterior
@@ -307,15 +309,15 @@ function Registro() {
                   </form>
                 </>
               )}
-  
+
               {step === 3 && (
                 <>
                   <Typography variant="h4" color="primary" mb={3}>
-                    {DOMPurify.sanitize('Verificación de Correo')}  
+                    {DOMPurify.sanitize('Verificación de Correo')}
                   </Typography>
                   <form onSubmit={handleSubmitVerificationCode}>
                     <TextField
-                      label={DOMPurify.sanitize("Código de Verificación")}  
+                      label={DOMPurify.sanitize("Código de Verificación")}
                       variant="outlined"
                       fullWidth
                       margin="normal"
@@ -332,7 +334,7 @@ function Registro() {
           </Grid>
         </Grid>
       </Container>
-  
+
       {/* Mostrar Snackbar para éxito o error */}
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
         <Alert onClose={handleCloseSnackbar} severity={successMessage ? "success" : "error"} sx={{ width: '100%' }}>
@@ -341,7 +343,7 @@ function Registro() {
       </Snackbar>
     </ThemeProvider>
   );
-  
+
 }
 
 export default Registro;

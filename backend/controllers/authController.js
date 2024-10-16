@@ -89,12 +89,22 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'El correo electrónico no es válido.' });
     }
 
-    // Sanitizar entradas de nombre, apellidos y correo
-const sanitizedNombre = validator.escape(nombre);
-const sanitizedApellidoPaterno = validator.escape(apellidoPaterno);
-const sanitizedApellidoMaterno = validator.escape(apellidoMaterno);
-const sanitizedCorreo = validator.escape(correo);
+    // Listas blancas para sexo y tipo de usuario
+    const validSexOptions = ['Hombre', 'Mujer', 'No especificado'];
+    if (!validSexOptions.includes(sexo)) {
+      return res.status(400).json({ message: 'El valor proporcionado para el campo Sexo no es válido.' });
+    }
 
+    const validUserTypes = ['paciente', 'administrador'];
+    if (!validUserTypes.includes(tipo)) {
+      return res.status(400).json({ message: 'Tipo de usuario no válido.' });
+    }
+
+    // Sanitizar entradas de nombre, apellidos y correo
+    const sanitizedNombre = validator.escape(nombre);
+    const sanitizedApellidoPaterno = validator.escape(apellidoPaterno);
+    const sanitizedApellidoMaterno = validator.escape(apellidoMaterno);
+    const sanitizedCorreo = validator.escape(correo);
 
     // Validar la fortaleza de la contraseña
     if (!validator.isStrongPassword(password, {
@@ -366,6 +376,7 @@ const login = async (req, res) => {
     return res.status(500).json({ error: 'Error en el servidor' });
   }
 };
+
 // Nueva función para cerrar sesión
 const logout = (req, res) => {
   // Eliminar la cookie de sesión
