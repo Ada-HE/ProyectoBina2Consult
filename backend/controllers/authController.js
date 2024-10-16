@@ -89,11 +89,12 @@ const register = async (req, res) => {
       return res.status(400).json({ message: 'El correo electrónico no es válido.' });
     }
 
-    // Sanitización de las entradas
-    const sanitizedNombre = validator.escape(nombre);
-    const sanitizedApellidoPaterno = validator.escape(apellidoPaterno);
-    const sanitizedApellidoMaterno = validator.escape(apellidoMaterno);
-    const sanitizedCorreo = validator.escape(correo);
+    // Sanitizar entradas de nombre, apellidos y correo
+const sanitizedNombre = validator.escape(nombre);
+const sanitizedApellidoPaterno = validator.escape(apellidoPaterno);
+const sanitizedApellidoMaterno = validator.escape(apellidoMaterno);
+const sanitizedCorreo = validator.escape(correo);
+
 
     // Validar la fortaleza de la contraseña
     if (!validator.isStrongPassword(password, {
@@ -303,43 +304,67 @@ const generarTokenSesion = (usuario, mfaVerificado = false) => {
 
 // Login de usuarios
 const login = async (req, res) => {
-  const { correo, password } = req.body;
+  try {
+    // Obtener correo y password del cuerpo de la solicitud
+    let { correo, password } = req.body;
 
-  userModel.findUserByEmail(correo, async (err, result) => {
-    if (err) return res.status(500).json({ error: err.message });
-    if (result.length === 0) return res.status(400).json({ message: 'Usuario no encontrado' });
+    // Sanitización de entradas
+    const sanitizedCorreo = validator.escape(correo);
+    const sanitizedPassword = validator.escape(password);
 
-    const usuario = result[0];
-
-    // Verificar si la cuenta está bloqueada
-    if (usuario.cuenta_bloqueada) {
-      return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
+    // Validar que los campos no estén vacíos y el correo sea válido
+    if (!sanitizedCorreo || !sanitizedPassword) {
+      return res.status(400).json({ message: 'Correo y contraseña son obligatorios.' });
     }
 
-    // Verificar la contraseña
-    const validPassword = await bcrypt.compare(password, usuario.password);
-    if (!validPassword) {
-      return res.status(400).json({ message: 'Contraseña incorrecta.' });
+    if (!validator.isEmail(sanitizedCorreo)) {
+      return res.status(400).json({ message: 'Correo electrónico no es válido.' });
     }
 
-    // Si el usuario tiene MFA habilitado
-    if (usuario.mfa_secret && !usuario.mfaVerificado) {
-      return res.json({ requireMfa: true }); // Indicar que se requiere MFA
-    }
+    // Buscar al usuario en la base de datos por su correo
+    userModel.findUserByEmail(sanitizedCorreo, async (err, result) => {
+      if (err) return res.status(500).json({ error: 'Error en el servidor' });
+      if (result.length === 0) return res.status(400).json({ message: 'Usuario no encontrado.' });
 
-    // Si ya pasó el MFA o no tiene MFA habilitado, generamos un token con mfaVerificado = true
-    const token = generarTokenSesion(usuario, true);
+      const usuario = result[0];
 
-    // Establecer la cookie de sesión
-    res.cookie('sessionToken', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'Strict',
-      maxAge: 1000 * 60 * 60 * 24 * 15 // 15 días
+      // Verificar si la cuenta está bloqueada por intentos fallidos
+      if (usuario.cuenta_bloqueada) {
+        return res.status(403).json({ message: 'Cuenta bloqueada debido a demasiados intentos fallidos.' });
+      }
+
+      // Verificar la contraseña ingresada con la almacenada
+      const validPassword = await bcrypt.compare(sanitizedPassword, usuario.password);
+      if (!validPassword) {
+        return res.status(400).json({ message: 'Contraseña incorrecta.' });
+      }
+
+      // Si el usuario tiene MFA habilitado y no ha pasado el MFA, solicitar MFA
+      if (usuario.mfa_secret && !usuario.mfaVerificado) {
+        return res.json({ requireMfa: true });
+      }
+
+      // Si la contraseña es correcta y el MFA ha sido verificado o no es requerido, generar el token JWT
+      const token = jwt.sign(
+        { id: usuario.id, tipo: usuario.tipo, mfaVerificado: true }, // Incluimos el estado del MFA en el token
+        'secreto_super_seguro', // Llave secreta del JWT
+        { expiresIn: '15d' } // El token será válido por 15 días
+      );
+
+      // Establecer la cookie de sesión con el token
+      res.cookie('sessionToken', token, {
+        httpOnly: true,    // Asegura que la cookie solo se pueda acceder vía HTTP y no desde scripts
+        secure: true,      // Solo se envía a través de conexiones HTTPS
+        sameSite: 'Strict',// Protege contra ataques CSRF
+        maxAge: 1000 * 60 * 60 * 24 * 15 // La cookie expira en 15 días
+      });
+
+      return res.json({ message: 'Inicio de sesión exitoso', token });
     });
-
-    return res.json({ message: 'Inicio de sesión exitoso', token });
-  });
+  } catch (error) {
+    console.error('Error en el servidor:', error);
+    return res.status(500).json({ error: 'Error en el servidor' });
+  }
 };
 // Nueva función para cerrar sesión
 const logout = (req, res) => {
