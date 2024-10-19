@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode'; // No necesitas llaves
 
 const theme = createTheme({
   palette: {
@@ -20,25 +20,40 @@ function Login() {
   const [qrCodeUrl, setQrCodeUrl] = useState(''); // Estado para almacenar la URL del código QR
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [loading, setLoading] = useState(true); // Estado de carga
 
   const navigate = useNavigate();
 
   useEffect(() => {
     // Verificar si ya existe una cookie de sesión y redirigir
-    const token = document.cookie.split('; ').find(row => row.startsWith('sessionToken='));
-    if (token) {
-      const decodedToken = jwtDecode(token.split('=')[1]);
+    const verificarAutenticacion = async () => {
+      try {
+        const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
+          method: 'GET',
+          credentials: 'include', // Asegurar que se incluyen las cookies
+        });
 
-      // Verificar si el MFA ya fue validado o si la sesión sigue activa
-      if (decodedToken.mfaVerificado) {
-        // Redirigir al dashboard o módulo adecuado
-        if (decodedToken.tipo === 'paciente') {
-          navigate('/inicio'); // Redirigir al módulo de paciente
-        } else if (decodedToken.tipo === 'administrador') {
-          navigate('/inicio-admin'); // Redirigir al módulo de administrador
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Respuesta de autenticación:', data);
+
+          // Redirigir según el tipo de usuario
+          if (data.tipoUsuario === 'paciente') {
+            navigate('/inicio');
+          } else if (data.tipoUsuario === 'administrador') {
+            navigate('/inicio-admin');
+          }
+        } else {
+          console.log('No autenticado, mostrar formulario de login.');
         }
+      } catch (error) {
+        console.error('Error verificando autenticación:', error);
+      } finally {
+        setLoading(false);
       }
-    }
+    };
+
+    verificarAutenticacion();
   }, [navigate]);
 
   const handleSubmitLogin = async (e) => {
@@ -59,11 +74,12 @@ function Login() {
     try {
       if (!showMfa) {
         // Intento de login
-        const response = await fetch('https://backendproyectobina2.onrender.com/api/login', {
+        const response = await fetch('http://localhost:4000/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include', // Enviar cookies
           body: JSON.stringify({ correo, password }),
         });
 
@@ -71,7 +87,7 @@ function Login() {
 
         if (response.ok && data.requireMfa) {
           // Si se requiere MFA, solicitamos el código QR
-          const qrResponse = await fetch(`https://backendproyectobina2.onrender.com/api/mfa/setup/${correo}`, {
+          const qrResponse = await fetch(`http://localhost:4000/api/mfa/setup/${correo}`, {
             method: 'GET',
           });
           const qrData = await qrResponse.json();
@@ -100,11 +116,12 @@ function Login() {
         }
       } else {
         // Verificar el código MFA
-        const response = await fetch('https://backendproyectobina2.onrender.com/api/mfa/verify', {
+        const response = await fetch('http://localhost:4000/api/mfa/verify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
+          credentials: 'include',
           body: JSON.stringify({ correo, token: mfaToken }), // Incluimos el código MFA
         });
 
@@ -134,6 +151,10 @@ function Login() {
   };
 
   const handleCloseSnackbar = () => setOpenSnackbar(false);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <ThemeProvider theme={theme}>
@@ -180,7 +201,7 @@ function Login() {
                       </Box>
                     )}
                     <TextField
-                      label="Código MFA" // Campo para el código MFA
+                      label="Código MFA"
                       type="text"
                       variant="outlined"
                       fullWidth
@@ -219,7 +240,7 @@ function Login() {
       </Container>
 
       <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={handleCloseSnackbar}>
-        <Alert onClose={handleCloseSnackbar} severity={successMessage ? "success" : "error"} sx={{ width: '100%' }}>
+        <Alert onClose={handleCloseSnackbar} severity={successMessage ? 'success' : 'error'} sx={{ width: '100%' }}>
           {successMessage || error}
         </Alert>
       </Snackbar>

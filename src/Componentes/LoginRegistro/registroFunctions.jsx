@@ -69,7 +69,7 @@ export const validarPassword = (password) => {
       const controller = new AbortController(); // Controlador para manejar timeout
       const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 10 segundos
   
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/registro', {
+      const response = await fetch('http://localhost:4000/api/registro', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -121,7 +121,7 @@ export const validarPassword = (password) => {
       const controller = new AbortController(); // Controlador para manejar timeout
       const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 10 segundos
   
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-codigo', {
+      const response = await fetch('http://localhost:4000/api/verificar-codigo', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

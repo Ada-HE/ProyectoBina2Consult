@@ -12,7 +12,7 @@ const BarraNavAdm = () => {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.comtobina2.onrender.com/api/logout', { // Asegúrate de apuntar al backend correcto
+      const response = await fetch('http://localhost:4000/api/logout', { // Asegúrate de apuntar al backend correcto
         method: 'POST',
         credentials: 'include', // Para incluir las cookies en la solicitud
       });
