@@ -12,14 +12,14 @@ const BarraNavPaciente = () => {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/logout', { // Asegúrate de apuntar al backend correcto
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', { // Asegúrate de apuntar al backend correcto
         method: 'POST',
         credentials: 'include', // Para incluir las cookies en la solicitud
       });
   
       if (response.ok) {
         // Redirigir al inicio de sesión después de cerrar sesión
-        navigate('/login');
+        navigate('/');
       } else {
         console.error('Error al cerrar sesión');
       }
@@ -27,7 +27,6 @@ const BarraNavPaciente = () => {
       console.error('Error de conexión', error);
     }
   };
-  
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

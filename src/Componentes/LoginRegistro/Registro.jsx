@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, MenuItem, Snackbar, Alert, LinearProgress } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -5,7 +6,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import LockIcon from '@mui/icons-material/Lock';
 import LockOpenIcon from '@mui/icons-material/LockOpen';
 import zxcvbn from 'zxcvbn';
-import { useNavigate } from 'react-router-dom';  // Importa useNavigate
+import { useNavigate } from 'react-router-dom';
 
 // Importa las funciones desde el archivo separado
 import { validarPassword, validarStep1, handleSubmit, handleSubmitVerification } from './registroFunctions';
@@ -18,7 +19,7 @@ const theme = createTheme({
 });
 
 function Registro() {
-  const [step, setStep] = useState(1);  // Controlar el paso del registro
+  const [step, setStep] = useState(1); 
   const [nombre, setNombre] = useState('');
   const [apellidoPaterno, setApellidoPaterno] = useState('');
   const [apellidoMaterno, setApellidoMaterno] = useState('');
@@ -28,14 +29,23 @@ function Registro() {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [codigoVerificacion, setCodigoVerificacion] = useState('');  // Código de verificación
+  const [codigoVerificacion, setCodigoVerificacion] = useState('');  
   const [recaptchaValue, setRecaptchaValue] = useState(null);
-  const [passwordStrength, setPasswordStrength] = useState(0);  // Fortaleza de contraseña
+  const [passwordStrength, setPasswordStrength] = useState(0);  
   const [error, setError] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');  // Mensaje de éxito o error
+  const [successMessage, setSuccessMessage] = useState('');
 
-  const navigate = useNavigate();  // Declarar el hook useNavigate
+  const [nombreError, setNombreError] = useState('');
+  const [apellidoPaternoError, setApellidoPaternoError] = useState('');
+  const [apellidoMaternoError, setApellidoMaternoError] = useState('');
+  const [telefonoError, setTelefonoError] = useState('');
+  const [edadError, setEdadError] = useState('');
+  const [correoError, setCorreoError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
+
+  const navigate = useNavigate();  
 
   const handleRecaptchaChange = (value) => setRecaptchaValue(value);
 
@@ -56,6 +66,12 @@ function Registro() {
     setPassword(pwd);
     const strength = zxcvbn(pwd).score;
     setPasswordStrength(strength);
+
+    if (!validarPassword(pwd)) {
+      setPasswordError('La contraseña debe tener al menos 8 caracteres, una mayúscula, un número y un carácter especial');
+    } else {
+      setPasswordError('');
+    }
   };
 
   const getPasswordStrengthMessage = (score) => {
@@ -98,7 +114,7 @@ function Registro() {
   const handleNext = () => {
     if (step === 1 && validarStep1(nombre, apellidoPaterno, apellidoMaterno, telefono, edad, sexo, mostrarAlerta)) {
       setError('');
-      setStep(step + 1);  // Avanzar al siguiente paso
+      setStep(step + 1);  
     }
   };
 
@@ -121,7 +137,7 @@ function Registro() {
       setError,
       (mensajeExito) => {
         mostrarExito(mensajeExito);
-        setStep(3);  // Avanza al paso 3 para ingresar el código de verificación
+        setStep(3);  
       },
       nombre,
       apellidoPaterno,
@@ -141,18 +157,57 @@ function Registro() {
       codigoVerificacion,
       mostrarAlerta,
       (mensajeExito) => {
-        mostrarExito("¡Registro exitoso! Serás redirigido al inicio de sesión.");  // Mostrar mensaje de éxito personalizado
-        setStep(3);  // Mantén el paso para que el mensaje sea visible
-  
-        // Esperar 3 segundos antes de redirigir al componente Login
+        mostrarExito("¡Registro exitoso! Serás redirigido al inicio de sesión.");  
         setTimeout(() => {
           navigate("/login");
-        }, 3000);  // Retraso de 3 segundos para mostrar el mensaje de éxito
+        }, 3000);  
       },
       setStep
     );
   };
-  
+
+  // Validaciones en tiempo real
+  const handleNombreChange = (e) => {
+    const value = e.target.value;
+    setNombre(value);
+    if (/\d/.test(value)) {
+      setNombreError('El nombre no puede contener números');
+    } else {
+      setNombreError(value ? '' : 'El nombre es requerido');
+    }
+  };
+
+  const handleApellidoPaternoChange = (e) => {
+    const value = e.target.value;
+    setApellidoPaterno(value);
+    if (/\d/.test(value)) {
+      setApellidoPaternoError('El apellido paterno no puede contener números');
+    } else {
+      setApellidoPaternoError(value ? '' : 'El apellido paterno es requerido');
+    }
+  };
+
+  const handleApellidoMaternoChange = (e) => {
+    const value = e.target.value;
+    setApellidoMaterno(value);
+    if (/\d/.test(value)) {
+      setApellidoMaternoError('El apellido materno no puede contener números');
+    } else {
+      setApellidoMaternoError('');
+    }
+  };
+
+  const handleTelefonoChange = (e) => {
+    const value = e.target.value;
+    setTelefono(value);
+    setTelefonoError(/^\d{10}$/.test(value) ? '' : 'El teléfono debe contener 10 dígitos');
+  };
+
+  const handleEdadChange = (e) => {
+    const value = e.target.value;
+    setEdad(value);
+    setEdadError(value > 0 ? '' : 'La edad debe ser un número mayor a 0');
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -185,7 +240,9 @@ function Registro() {
                       fullWidth
                       margin="normal"
                       value={nombre}
-                      onChange={(e) => setNombre(e.target.value)}
+                      onChange={handleNombreChange}
+                      error={!!nombreError}
+                      helperText={nombreError}
                     />
                     <TextField
                       label="Apellido Paterno"
@@ -193,7 +250,9 @@ function Registro() {
                       fullWidth
                       margin="normal"
                       value={apellidoPaterno}
-                      onChange={(e) => setApellidoPaterno(e.target.value)}
+                      onChange={handleApellidoPaternoChange}
+                      error={!!apellidoPaternoError}
+                      helperText={apellidoPaternoError}
                     />
                     <TextField
                       label="Apellido Materno"
@@ -201,7 +260,9 @@ function Registro() {
                       fullWidth
                       margin="normal"
                       value={apellidoMaterno}
-                      onChange={(e) => setApellidoMaterno(e.target.value)}
+                      onChange={handleApellidoMaternoChange}
+                      error={!!apellidoMaternoError}
+                      helperText={apellidoMaternoError}
                     />
                     <TextField
                       label="Teléfono"
@@ -209,7 +270,9 @@ function Registro() {
                       fullWidth
                       margin="normal"
                       value={telefono}
-                      onChange={(e) => setTelefono(e.target.value)}
+                      onChange={handleTelefonoChange}
+                      error={!!telefonoError}
+                      helperText={telefonoError}
                     />
                     <TextField
                       label="Edad"
@@ -217,7 +280,9 @@ function Registro() {
                       fullWidth
                       margin="normal"
                       value={edad}
-                      onChange={(e) => setEdad(e.target.value)}
+                      onChange={handleEdadChange}
+                      error={!!edadError}
+                      helperText={edadError}
                     />
 
                     <TextField
@@ -254,6 +319,8 @@ function Registro() {
                       margin="normal"
                       value={correo}
                       onChange={(e) => setCorreo(e.target.value)}
+                      error={!!correoError}
+                      helperText={correoError}
                     />
                     <TextField
                       label="Contraseña"
@@ -263,6 +330,8 @@ function Registro() {
                       margin="normal"
                       value={password}
                       onChange={handlePasswordChange}
+                      error={!!passwordError}
+                      helperText={passwordError}
                     />
                     <TextField
                       label="Confirmar Contraseña"
@@ -272,18 +341,20 @@ function Registro() {
                       margin="normal"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
+                      error={!!confirmPasswordError}
+                      helperText={confirmPasswordError}
                     />
 
                     {/* Medidor de fortaleza de contraseña */}
                     <Box display="flex" alignItems="center" mt={2}>
-                      {getPasswordStrengthIcon(passwordStrength)}  {/* Ícono de candado */}
+                      {getPasswordStrengthIcon(passwordStrength)}  
                       <Typography variant="body2" color={getPasswordStrengthColor(passwordStrength)} style={{ marginLeft: '10px' }}>
                         Fortaleza de la contraseña: {getPasswordStrengthMessage(passwordStrength)}
                       </Typography>
                     </Box>
                     <LinearProgress
                       variant="determinate"
-                      value={(passwordStrength + 1) * 20}  // Muestra el progreso en 5 niveles
+                      value={(passwordStrength + 1) * 20}  
                       color={getPasswordStrengthColor(passwordStrength)}
                       style={{ marginTop: '10px', marginBottom: '10px' }}
                     />

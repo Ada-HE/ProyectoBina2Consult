@@ -59,7 +59,7 @@ function Login() {
     try {
       if (!showMfa) {
         // Intento de login
-        const response = await fetch('http://localhost:4000/api/login', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -71,7 +71,7 @@ function Login() {
 
         if (response.ok && data.requireMfa) {
           // Si se requiere MFA, solicitamos el código QR
-          const qrResponse = await fetch(`http://localhost:4000/api/mfa/setup/${correo}`, {
+          const qrResponse = await fetch(`https://backendproyectobina2.onrender.com/api/mfa/setup/${correo}`, {
             method: 'GET',
           });
           const qrData = await qrResponse.json();
@@ -100,7 +100,7 @@ function Login() {
         }
       } else {
         // Verificar el código MFA
-        const response = await fetch('http://localhost:4000/api/mfa/verify', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/mfa/verify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
