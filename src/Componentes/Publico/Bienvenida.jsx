@@ -7,7 +7,7 @@ const Bienvenida = () => {
     <Container maxWidth="lg" style={{ textAlign: 'center', marginTop: '50px' }}>
       <Box>
         <Typography variant="h2" color="primary" gutterBottom>
-          ¡Bienvenido a nuestro Consultorio Dental!
+          ¡Bienvenido a nuestroo Consultorio Dental!
         </Typography>
         <Typography variant="h5" color="textSecondary" gutterBottom>
           En nuestro consultorio ofrecemos atención odontológica de alta calidad para toda la familia.
