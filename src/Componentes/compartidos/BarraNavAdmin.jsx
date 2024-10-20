@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home'; // Icono de inicio
@@ -7,14 +7,39 @@ import { Link, useNavigate } from 'react-router-dom'; // Importar useNavigate pa
 
 const BarraNavAdm = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
   const navigate = useNavigate(); // Hook para redireccionar
   
+  // Obtener el token CSRF al montar el componente
+  const obtenerCsrfToken = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+        method: 'GET',
+        credentials: 'include', // Incluir cookies para obtener el token CSRF
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+      }
+    } catch (error) {
+      console.error('Error al obtener el token CSRF:', error);
+    }
+  };
+
+  useEffect(() => {
+    obtenerCsrfToken(); // Llamar a la función para obtener el token CSRF
+  }, []);
+
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
       const response = await fetch('http://localhost:4000/api/logout', { // Asegúrate de apuntar al backend correcto
         method: 'POST',
         credentials: 'include', // Para incluir las cookies en la solicitud
+        headers: {
+          'CSRF-Token': csrfToken, // Incluir el token CSRF en la cabecera
+        },
       });
   
       if (response.ok) {
@@ -27,7 +52,6 @@ const BarraNavAdm = () => {
       console.error('Error de conexión', error);
     }
   };
-  
 
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);

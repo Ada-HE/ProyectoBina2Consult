@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Link } from 'react-router-dom';
-import {jwtDecode} from 'jwt-decode'; // No necesitas llaves
-import validator from 'validator'; // Importamos validator para validar campos
+import { jwtDecode } from 'jwt-decode'; // Importación correcta de jwtDecode
+import validator from 'validator';
 
 const theme = createTheme({
   palette: {
@@ -15,22 +15,43 @@ const theme = createTheme({
 function Login() {
   const [correo, setCorreo] = useState('');
   const [password, setPassword] = useState('');
-  const [mfaToken, setMfaToken] = useState(''); // Estado para el código MFA
+  const [mfaToken, setMfaToken] = useState('');
   const [error, setError] = useState('');
-  const [showMfa, setShowMfa] = useState(false); // Mostrar campo MFA
-  const [qrCodeUrl, setQrCodeUrl] = useState(''); // Estado para almacenar la URL del código QR
+  const [showMfa, setShowMfa] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [loading, setLoading] = useState(true); // Estado de carga
+  const [loading, setLoading] = useState(true);
+  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
 
   const navigate = useNavigate();
+
+  // Obtener CSRF Token
+  const obtenerCsrfToken = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+        method: 'GET',
+        credentials: 'include', // Incluir cookies para obtener el token CSRF
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('CSRF token obtenido:', data.csrfToken);
+        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+      }
+    } catch (error) {
+      console.error('Error al obtener el token CSRF:', error);
+    }
+  };
 
   useEffect(() => {
     const verificarAutenticacion = async () => {
       try {
+        await obtenerCsrfToken(); // Obtener el token CSRF al montar el componente
+
         const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
           method: 'GET',
-          credentials: 'include', // Asegurar que se incluyen las cookies
+          credentials: 'include', // Enviar cookies con la solicitud
         });
 
         if (response.ok) {
@@ -56,7 +77,6 @@ function Login() {
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
 
-    // Validaciones usando validator
     if (!validator.isEmail(correo)) {
       setError('Por favor, ingresa un correo válido');
       setOpenSnackbar(true);
@@ -77,71 +97,67 @@ function Login() {
 
     try {
       if (!showMfa) {
-        // Intento de login
         const response = await fetch('http://localhost:4000/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken, // Incluye el token CSRF en la cabecera
           },
-          credentials: 'include', // Enviar cookies
+          credentials: 'include', // Incluir cookies
           body: JSON.stringify({ correo, password }),
         });
 
         const data = await response.json();
 
         if (response.ok && data.requireMfa) {
-          // Si se requiere MFA, solicitamos el código QR
           const qrResponse = await fetch(`http://localhost:4000/api/mfa/setup/${correo}`, {
             method: 'GET',
           });
           const qrData = await qrResponse.json();
-          setQrCodeUrl(qrData.qrCodeUrl); // Guardamos la URL del código QR
-
-          // Mostramos el campo para MFA
+          setQrCodeUrl(qrData.qrCodeUrl);
           setShowMfa(true);
-          setSuccessMessage('Por favor, escanea el código QR y luego ingresa el código MFA.');
+          setSuccessMessage('Por favor, escanea el código QR e ingresa el código MFA.');
           setOpenSnackbar(true);
         } else if (response.ok) {
-          // Si no requiere MFA, login exitoso
-          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // Cookie válida por 15 días
+          // Guardar el token de sesión
+          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // 15 días
+          
           setSuccessMessage('¡Inicio de sesión exitoso!');
           setOpenSnackbar(true);
 
-          // Redirigir según el tipo de usuario
           const decodedToken = jwtDecode(data.token);
           if (decodedToken.tipo === 'paciente') {
-            navigate('/inicio'); // Redirigir al módulo de paciente
+            navigate('/inicio');
           } else if (decodedToken.tipo === 'administrador') {
-            navigate('/inicio-admin'); // Redirigir al módulo de administrador
+            navigate('/inicio-admin');
           }
         } else {
           setError(data.message || 'Error en el inicio de sesión');
           setOpenSnackbar(true);
         }
       } else {
-        // Verificar el código MFA
         const response = await fetch('http://localhost:4000/api/mfa/verify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'CSRF-Token': csrfToken, // Incluye el token CSRF en la cabecera
           },
           credentials: 'include',
-          body: JSON.stringify({ correo, token: mfaToken }), // Incluimos el código MFA
+          body: JSON.stringify({ correo, token: mfaToken }),
         });
 
         const data = await response.json();
 
         if (response.ok) {
-          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // Cookie válida por 15 días
+          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // 15 días
           setSuccessMessage('¡Inicio de sesión exitoso!');
           setOpenSnackbar(true);
 
-          // Redirigir según el tipo de usuario
           const decodedToken = jwtDecode(data.token);
           if (decodedToken.tipo === 'paciente') {
-            navigate('/inicio'); // Redirigir al módulo de paciente
+            navigate('/inicio');
           } else if (decodedToken.tipo === 'administrador') {
-            navigate('/inicio-admin'); // Redirigir al módulo de administrador
+            navigate('/inicio-admin');
           }
         } else {
           setError('Código MFA incorrecto. Inténtalo de nuevo.');
@@ -213,7 +229,7 @@ function Login() {
                       fullWidth
                       margin="normal"
                       value={mfaToken}
-                      onChange={(e) => setMfaToken(e.target.value)} // Actualización del código MFA
+                      onChange={(e) => setMfaToken(e.target.value)}
                     />
                   </>
                 )}

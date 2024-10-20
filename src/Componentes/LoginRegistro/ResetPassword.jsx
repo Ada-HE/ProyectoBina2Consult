@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Snackbar, Alert, Container, LinearProgress, IconButton, InputAdornment } from '@mui/material';
 import { useParams, useNavigate } from 'react-router-dom';
 import zxcvbn from 'zxcvbn';
@@ -15,11 +15,34 @@ function ResetPassword() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState(0);
   const [passwordError, setPasswordError] = useState('');
-  const [showPassword, setShowPassword] = useState(false);  // Controlar visibilidad de la contraseña
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);  // Controlar visibilidad de la confirmación
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
 
   const { token } = useParams(); // Obtener el token de la URL
   const navigate = useNavigate();
+
+  // Función para obtener el token CSRF
+  const obtenerCsrfToken = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+        method: 'GET',
+        credentials: 'include', // Incluir cookies para obtener el token CSRF
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+      }
+    } catch (error) {
+      console.error('Error al obtener el token CSRF:', error);
+    }
+  };
+
+  // Llamar a obtenerCsrfToken al montar el componente
+  useEffect(() => {
+    obtenerCsrfToken();
+  }, []);
 
   // Validación de la contraseña
   const validarPassword = (password) => {
@@ -103,7 +126,10 @@ function ResetPassword() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'CSRF-Token': csrfToken, // Incluir el token CSRF en la cabecera
         },
+        credentials: 'include',  // Asegurar que las cookies también se envíen
+
         body: JSON.stringify({ token, newPassword, confirmPassword }),
       });
 
@@ -153,7 +179,6 @@ function ResetPassword() {
               )
             }}
           />
-
 
           <TextField
             label="Confirmar contraseña"

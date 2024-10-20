@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home'; // Icono de inicio
@@ -7,16 +7,43 @@ import { Link, useNavigate } from 'react-router-dom'; // Importar useNavigate pa
 
 const BarraNavPaciente = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
   const navigate = useNavigate(); // Hook para redireccionar
-  
+
+  // Función para obtener el token CSRF
+  const obtenerCsrfToken = async () => {
+    try {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+        method: 'GET',
+        credentials: 'include', // Incluir cookies para obtener el token CSRF
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('CSRF token obtenido:', data.csrfToken);
+        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+      }
+    } catch (error) {
+      console.error('Error al obtener el token CSRF:', error);
+    }
+  };
+
+  // Llamar a obtenerCsrfToken al montar el componente
+  useEffect(() => {
+    obtenerCsrfToken();
+  }, []);
+
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/logout', { // Asegúrate de apuntar al backend correcto
+      const response = await fetch('http://localhost:4000/api/logout', {
         method: 'POST',
-        credentials: 'include', // Para incluir las cookies en la solicitud
+        headers: {
+          'CSRF-Token': csrfToken, // Incluir el token CSRF en la cabecera
+        },
+        credentials: 'include', // Incluir cookies en la solicitud
       });
-  
+
       if (response.ok) {
         // Redirigir al inicio de sesión después de cerrar sesión
         navigate('/');
