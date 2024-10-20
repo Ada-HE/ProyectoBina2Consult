@@ -3,6 +3,7 @@ import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, Snack
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Link } from 'react-router-dom';
 import {jwtDecode} from 'jwt-decode'; // No necesitas llaves
+import validator from 'validator'; // Importamos validator para validar campos
 
 const theme = createTheme({
   palette: {
@@ -25,7 +26,6 @@ function Login() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Verificar si ya existe una cookie de sesión y redirigir
     const verificarAutenticacion = async () => {
       try {
         const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
@@ -35,9 +35,6 @@ function Login() {
 
         if (response.ok) {
           const data = await response.json();
-          console.log('Respuesta de autenticación:', data);
-
-          // Redirigir según el tipo de usuario
           if (data.tipoUsuario === 'paciente') {
             navigate('/inicio');
           } else if (data.tipoUsuario === 'administrador') {
@@ -59,7 +56,14 @@ function Login() {
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
 
-    if (!showMfa && (correo === '' || password === '')) {
+    // Validaciones usando validator
+    if (!validator.isEmail(correo)) {
+      setError('Por favor, ingresa un correo válido');
+      setOpenSnackbar(true);
+      return;
+    }
+
+    if (!correo || !password) {
       setError('Por favor, llena todos los campos');
       setOpenSnackbar(true);
       return;
@@ -177,6 +181,8 @@ function Login() {
                       margin="normal"
                       value={correo}
                       onChange={(e) => setCorreo(e.target.value)}
+                      error={!validator.isEmail(correo) && correo !== ''}
+                      helperText={!validator.isEmail(correo) && correo !== '' ? 'Correo no válido' : ''}
                     />
                     <TextField
                       label="Contraseña"
@@ -220,6 +226,11 @@ function Login() {
                   ¿No tienes una cuenta?{' '}
                   <Link to="/registro" style={{ color: '#3498db', textDecoration: 'none' }}>
                     Regístrate aquí
+                  </Link>
+                </Typography>
+                <Typography variant="body2" color="textSecondary" align="center" mt={3}>
+                  <Link to="/forgot-password" style={{ color: '#3498db', textDecoration: 'none' }}>
+                    ¿Olvidaste tu contraseña?
                   </Link>
                 </Typography>
               </form>

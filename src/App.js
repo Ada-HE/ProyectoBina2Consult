@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 
+import CookieConsent from './Componentes/LoginRegistro/CookieConsent';
+
+
 import LayoutPublico from './Componentes/compartidos/LayoutPublico';
 import Registro from './Componentes/LoginRegistro/Registro';
 import Login from './Componentes/LoginRegistro/Login';
@@ -11,6 +14,9 @@ import BienvenidaPaciente from './Componentes/Paciente/BienvenidaPaciente';
 
 import BienvenidaAdmin from './Componentes/Administrativo/BienvenidaAdmin';
 import LayoutAdmin from './Componentes/compartidos/LayoutAdmin';
+
+import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
+import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
 
 function App() {
   const navigate = useNavigate();
@@ -58,38 +64,45 @@ function App() {
   }
 
   return (
-    <Routes>
-      {/* Rutas públicas */}
-      <Route path="/" element={<LayoutPublico><Bienvenida /></LayoutPublico>} />
-      <Route path="/registro" element={<Registro />} />
-      <Route path="/login" element={<Login />} />
+    <>
+      {/* Barra de consentimiento de cookies */}
+      <CookieConsent />
 
-      {/* Si no está autenticado, puede acceder solo a rutas públicas */}
-      {tipoUsuario === null && (
-        <>
-          <Route path="/registro" element={<Registro />} />
-          <Route path="/login" element={<Login />} />
-        </>
-      )}
+      {/* Rutas de la aplicación */}
+      <Routes>
+        {/* Rutas públicas */}
+        <Route path="/" element={<LayoutPublico><Bienvenida /></LayoutPublico>} />
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-      {/* Rutas privadas para pacientes */}
-      {tipoUsuario === 'paciente' && (
-        <>
-          <Route path="/inicio" element={<LayoutPaciente><BienvenidaPaciente /></LayoutPaciente>} />
-        </>
-      )}
+        {/* Si no está autenticado, puede acceder solo a rutas públicas */}
+        {tipoUsuario === null && (
+          <>
+            <Route path="/registro" element={<Registro />} />
+            <Route path="/login" element={<Login />} />
+          </>
+        )}
 
-      {/* Rutas privadas para administradores */}
-      {tipoUsuario === 'administrador' && (
-        <>
-          <Route path="/inicio-admin" element={<LayoutAdmin><BienvenidaAdmin /></LayoutAdmin>} />
-        </>
-      )}
+        {/* Rutas privadas para pacientes */}
+        {tipoUsuario === 'paciente' && (
+          <>
+            <Route path="/inicio" element={<LayoutPaciente><BienvenidaPaciente /></LayoutPaciente>} />
+          </>
+        )}
 
-      {/* Redirigir cualquier ruta desconocida a la página de login si no está autenticado */}
-      <Route path="*" element={<Navigate to={tipoUsuario ? "/inicio" : "/login"} />} />
-    </Routes>
+        {/* Rutas privadas para administradores */}
+        {tipoUsuario === 'administrador' && (
+          <>
+            <Route path="/inicio-admin" element={<LayoutAdmin><BienvenidaAdmin /></LayoutAdmin>} />
+          </>
+        )}
+
+        {/* Redirigir cualquier ruta desconocida a la página de login si no está autenticado */}
+        <Route path="*" element={<Navigate to={tipoUsuario ? "/inicio" : "/login"} />} />
+      </Routes>
+    </>
   );
 }
-
 export default App;
