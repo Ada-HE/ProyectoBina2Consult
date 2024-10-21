@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Agrega useEffect para obtener el token CSRF
+import React, { useState, useEffect } from 'react'; 
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, MenuItem, Snackbar, Alert, LinearProgress } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import ReCAPTCHA from 'react-google-recaptcha';
@@ -10,40 +10,34 @@ import { useNavigate } from 'react-router-dom';
 // Importa las funciones desde el archivo separado
 import { validarPassword, validarStep1, handleSubmit, handleSubmitVerification } from './registroFunctions';
 
-const theme = createTheme({
-    palette: {
-        primary: { main: '#3498db' },
-        secondary: { main: '#2c3e50' },
-    },
-});
-
 function Registro() {
-  const [step, setStep] = useState(1); 
-  const [nombre, setNombre] = useState('');
-  const [apellidoPaterno, setApellidoPaterno] = useState('');
-  const [apellidoMaterno, setApellidoMaterno] = useState('');
-  const [telefono, setTelefono] = useState('');
-  const [edad, setEdad] = useState('');
-  const [sexo, setSexo] = useState('');
-  const [correo, setCorreo] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [codigoVerificacion, setCodigoVerificacion] = useState('');  
-  const [recaptchaValue, setRecaptchaValue] = useState(null);
-  const [passwordStrength, setPasswordStrength] = useState(0);  
-  const [error, setError] = useState('');
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [successMessage, setSuccessMessage] = useState('');
+    const [step, setStep] = useState(1); 
+    const [nombre, setNombre] = useState('');
+    const [apellidoPaterno, setApellidoPaterno] = useState('');
+    const [apellidoMaterno, setApellidoMaterno] = useState('');
+    const [telefono, setTelefono] = useState('');
+    const [edad, setEdad] = useState('');
+    const [sexo, setSexo] = useState('');
+    const [correo, setCorreo] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
+    const [codigoVerificacion, setCodigoVerificacion] = useState('');  
+    const [recaptchaValue, setRecaptchaValue] = useState(null);
+    const [passwordStrength, setPasswordStrength] = useState(0);  
+    const [error, setError] = useState('');
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [themeMode, setThemeMode] = useState('light'); // Estado para el modo de tema (claro/oscuro)
 
-  const [nombreError, setNombreError] = useState('');
-  const [apellidoPaternoError, setApellidoPaternoError] = useState('');
-  const [apellidoMaternoError, setApellidoMaternoError] = useState('');
-  const [telefonoError, setTelefonoError] = useState('');
-  const [edadError, setEdadError] = useState('');
-  const [correoError, setCorreoError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
-    const [csrfToken, setCsrfToken] = useState(''); // Nuevo estado para el token CSRF
+    const [nombreError, setNombreError] = useState('');
+    const [apellidoPaternoError, setApellidoPaternoError] = useState('');
+    const [apellidoMaternoError, setApellidoMaternoError] = useState('');
+    const [telefonoError, setTelefonoError] = useState('');
+    const [edadError, setEdadError] = useState('');
+    const [correoError, setCorreoError] = useState('');
+    const [passwordError, setPasswordError] = useState('');
+    const [confirmPasswordError, setConfirmPasswordError] = useState('');
+    const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
 
     const navigate = useNavigate();  
 
@@ -51,19 +45,28 @@ function Registro() {
     useEffect(() => {
         const fetchCsrfToken = async () => {
             try {
-                const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+                const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
                     credentials: 'include',
                 });
                 const data = await response.json();
-                console.log('Token CSRF recibido:', data.csrfToken);  // Verifica si recibes el token
-
-                setCsrfToken(data.csrfToken); // Guardar el token CSRF en el estado
+                setCsrfToken(data.csrfToken); 
             } catch (error) {
                 console.error('Error al obtener el token CSRF:', error);
             }
         };
         fetchCsrfToken();
-    }, []); // Solo se ejecuta cuando el componente se monta
+    }, []); 
+
+    // Detectar el tema guardado en el localStorage y aplicarlo
+    useEffect(() => {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setThemeMode(savedTheme); 
+        } else {
+            const preferedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            setThemeMode(preferedTheme);
+        }
+    }, []);
 
     const handleRecaptchaChange = (value) => setRecaptchaValue(value);
 
@@ -172,7 +175,7 @@ function Registro() {
             mostrarAlerta('Demasiadas solicitudes desde esta IP, por favor intenta de nuevo más tarde.');
           }
         }
-      };
+    };
 
     const handleSubmitVerificationCode = async (e) => {
     e.preventDefault();
@@ -240,12 +243,21 @@ function Registro() {
         setEdadError(value > 0 ? '' : 'La edad debe ser un número mayor a 0');
     };
 
+    // Crear el tema basado en el estado themeMode
+    const theme = createTheme({
+        palette: {
+            mode: themeMode,
+            primary: { main: '#3498db' },
+            secondary: { main: '#2c3e50' },
+        },
+    });
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
             <Container maxWidth="lg">
                 <Grid container spacing={2} style={{ height: '100vh' }}>
-                    <Grid item xs={12} md={6} style={{ backgroundColor: '#f5f9ff', padding: '40px' }}>
+                    <Grid item xs={12} md={6} style={{ backgroundColor: theme.palette.background.paper, padding: '40px' }}>
                         <Box display="flex" flexDirection="column" justifyContent="center" height="100%">
                             <Typography variant="h3" color="secondary">
                                 Bienvenido al Consultorio Dental
@@ -257,7 +269,7 @@ function Registro() {
                         </Box>
                     </Grid>
 
-                    <Grid item xs={12} md={6} style={{ backgroundColor: '#ffffff', padding: '40px' }}>
+                    <Grid item xs={12} md={6} style={{ backgroundColor: theme.palette.background.paper, padding: '40px' }}>
                         <Box display="flex" flexDirection="column" justifyContent="center" height="100%">
                             {step === 1 && (
                                 <>
@@ -274,6 +286,12 @@ function Registro() {
                                             onChange={handleNombreChange}
                                             error={!!nombreError}
                                             helperText={nombreError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Apellido Paterno"
@@ -284,6 +302,12 @@ function Registro() {
                                             onChange={handleApellidoPaternoChange}
                                             error={!!apellidoPaternoError}
                                             helperText={apellidoPaternoError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Apellido Materno"
@@ -294,6 +318,12 @@ function Registro() {
                                             onChange={handleApellidoMaternoChange}
                                             error={!!apellidoMaternoError}
                                             helperText={apellidoMaternoError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Teléfono"
@@ -304,6 +334,12 @@ function Registro() {
                                             onChange={handleTelefonoChange}
                                             error={!!telefonoError}
                                             helperText={telefonoError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Edad"
@@ -314,6 +350,12 @@ function Registro() {
                                             onChange={handleEdadChange}
                                             error={!!edadError}
                                             helperText={edadError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
 
                                         <TextField
@@ -324,6 +366,12 @@ function Registro() {
                                             margin="normal"
                                             value={sexo}
                                             onChange={(e) => setSexo(e.target.value)}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         >
                                             <MenuItem value="Hombre">Hombre</MenuItem>
                                             <MenuItem value="Mujer">Mujer</MenuItem>
@@ -352,6 +400,12 @@ function Registro() {
                                             onChange={(e) => setCorreo(e.target.value)}
                                             error={!!correoError}
                                             helperText={correoError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Contraseña"
@@ -363,6 +417,12 @@ function Registro() {
                                             onChange={handlePasswordChange}
                                             error={!!passwordError}
                                             helperText={passwordError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
                                         <TextField
                                             label="Confirmar Contraseña"
@@ -374,6 +434,12 @@ function Registro() {
                                             onChange={(e) => setConfirmPassword(e.target.value)}
                                             error={!!confirmPasswordError}
                                             helperText={confirmPasswordError}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
 
                                         {/* Medidor de fortaleza de contraseña */}
@@ -420,8 +486,14 @@ function Registro() {
                                             margin="normal"
                                             value={codigoVerificacion}
                                             onChange={(e) => setCodigoVerificacion(e.target.value)}
+                                            InputProps={{
+                                                style: {
+                                                    backgroundColor: themeMode === 'dark' ? '#333333' : '#ffffff',
+                                                    color: themeMode === 'dark' ? '#ffffff' : '#000000',
+                                                },
+                                            }}
                                         />
-                                        <Button type="submit" variant="contained" color="primary">
+                                        <Button type="submit" variant="contained" color="primary" style={{ marginTop: '20px' }}>
                                             Verificar Código
                                         </Button>
                                     </form>

@@ -15,7 +15,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   // Obtener el token CSRF al montar el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include', // Incluir cookies para obtener el token CSRF
       });
@@ -36,7 +36,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/logout', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', {
         method: 'POST',
         credentials: 'include', // Para incluir las cookies en la solicitud
         headers: {
@@ -81,7 +81,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
         <Button 
           color="inherit" 
           component={Link} 
-          to="/inicio" 
+          to="/inicio-admin" 
           sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem', color: textColor }}
         >
           <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem', color: textColor }} /> 
@@ -123,7 +123,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
           onClose={handleMenuClose}
           sx={{ display: { xs: 'block', sm: 'none' } }}
         >
-          <MenuItem onClick={handleMenuClose} component={Link} to="/inicio">
+          <MenuItem onClick={handleMenuClose} component={Link} to="/inicio-admin">
             <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
             Inicio
           </MenuItem>
