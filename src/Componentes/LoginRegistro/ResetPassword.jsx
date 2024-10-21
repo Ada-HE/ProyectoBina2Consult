@@ -134,6 +134,14 @@ function ResetPassword() {
       });
 
       const data = await response.json();
+      
+      if (response.status === 429) {
+        // Manejar el error de límite de solicitudes (Rate Limit)
+        setError('Demasiadas solicitudes. Intenta de nuevo más tarde.');
+        setOpenSnackbar(true);
+        return;
+      }
+
       if (response.ok) {
         setSuccessMessage(data.message);
         setOpenSnackbar(true);

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, TextField, Typography, Container, Grid, CssBaseline, Snackbar, Alert } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate, Link } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode'; // Importación correcta de jwtDecode
+import { jwtDecode } from 'jwt-decode';
 import validator from 'validator';
 
 const theme = createTheme({
@@ -22,7 +22,7 @@ function Login() {
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
   const [loading, setLoading] = useState(true);
-  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
+  const [csrfToken, setCsrfToken] = useState('');
 
   const navigate = useNavigate();
 
@@ -31,13 +31,13 @@ function Login() {
     try {
       const response = await fetch('http://localhost:4000/api/get-csrf-token', {
         method: 'GET',
-        credentials: 'include', // Incluir cookies para obtener el token CSRF
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
         console.log('CSRF token obtenido:', data.csrfToken);
-        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+        setCsrfToken(data.csrfToken);
       }
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -47,11 +47,11 @@ function Login() {
   useEffect(() => {
     const verificarAutenticacion = async () => {
       try {
-        await obtenerCsrfToken(); // Obtener el token CSRF al montar el componente
+        await obtenerCsrfToken();
 
         const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
           method: 'GET',
-          credentials: 'include', // Enviar cookies con la solicitud
+          credentials: 'include',
         });
 
         if (response.ok) {
@@ -76,39 +76,45 @@ function Login() {
 
   const handleSubmitLogin = async (e) => {
     e.preventDefault();
-
+    
     if (!validator.isEmail(correo)) {
       setError('Por favor, ingresa un correo válido');
       setOpenSnackbar(true);
       return;
     }
-
+    
     if (!correo || !password) {
       setError('Por favor, llena todos los campos');
       setOpenSnackbar(true);
       return;
     }
-
+    
     if (showMfa && mfaToken === '') {
       setError('Por favor, ingresa el código MFA');
       setOpenSnackbar(true);
       return;
     }
-
+    
     try {
       if (!showMfa) {
         const response = await fetch('http://localhost:4000/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'CSRF-Token': csrfToken, // Incluye el token CSRF en la cabecera
+            'CSRF-Token': csrfToken,
           },
-          credentials: 'include', // Incluir cookies
+          credentials: 'include',
           body: JSON.stringify({ correo, password }),
         });
-
+    
+        if (response.status === 429) {
+          setError('Has excedido el número de intentos de inicio de sesión. Por favor, intenta de nuevo más tarde.');
+          setOpenSnackbar(true);
+          return;
+        }
+    
         const data = await response.json();
-
+    
         if (response.ok && data.requireMfa) {
           const qrResponse = await fetch(`http://localhost:4000/api/mfa/setup/${correo}`, {
             method: 'GET',
@@ -119,18 +125,18 @@ function Login() {
           setSuccessMessage('Por favor, escanea el código QR e ingresa el código MFA.');
           setOpenSnackbar(true);
         } else if (response.ok) {
-          // Guardar el token de sesión
-          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // 15 días
-          
+          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`;
           setSuccessMessage('¡Inicio de sesión exitoso!');
           setOpenSnackbar(true);
-
+    
           const decodedToken = jwtDecode(data.token);
-          if (decodedToken.tipo === 'paciente') {
-            navigate('/inicio');
-          } else if (decodedToken.tipo === 'administrador') {
-            navigate('/inicio-admin');
-          }
+          setTimeout(() => {
+            if (decodedToken.tipo === 'paciente') {
+              navigate('/inicio');
+            } else if (decodedToken.tipo === 'administrador') {
+              navigate('/inicio-admin');
+            }
+          }, 2000); // Espera de 2 segundos antes de redirigir
         } else {
           setError(data.message || 'Error en el inicio de sesión');
           setOpenSnackbar(true);
@@ -140,28 +146,38 @@ function Login() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'CSRF-Token': csrfToken, // Incluye el token CSRF en la cabecera
+            'CSRF-Token': csrfToken,
           },
           credentials: 'include',
           body: JSON.stringify({ correo, token: mfaToken }),
         });
-
+    
+        if (response.status === 429) {
+          setError('Has excedido el número de intentos para verificar el código MFA. Por favor, intenta de nuevo más tarde.');
+          setOpenSnackbar(true);
+          return;
+        }
+    
         const data = await response.json();
-
+    
         if (response.ok) {
-          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`; // 15 días
+          document.cookie = `sessionToken=${data.token}; SameSite=Strict; path=/; max-age=1296000`;
           setSuccessMessage('¡Inicio de sesión exitoso!');
           setOpenSnackbar(true);
-
+    
           const decodedToken = jwtDecode(data.token);
-          if (decodedToken.tipo === 'paciente') {
-            navigate('/inicio');
-          } else if (decodedToken.tipo === 'administrador') {
-            navigate('/inicio-admin');
-          }
+          setTimeout(() => {
+            if (decodedToken.tipo === 'paciente') {
+              navigate('/inicio');
+            } else if (decodedToken.tipo === 'administrador') {
+              navigate('/inicio-admin');
+            }
+          }, 2000); // Espera de 2 segundos antes de redirigir
         } else {
+          // Si el código MFA es incorrecto, solo muestra el mensaje de error
           setError('Código MFA incorrecto. Inténtalo de nuevo.');
           setOpenSnackbar(true);
+          // Aquí ya no cambiamos el estado showMfa ni la URL del código QR
         }
       }
     } catch (error) {
@@ -169,7 +185,7 @@ function Login() {
       setOpenSnackbar(true);
     }
   };
-
+  
   const handleCloseSnackbar = () => setOpenSnackbar(false);
 
   if (loading) {
@@ -230,6 +246,8 @@ function Login() {
                       margin="normal"
                       value={mfaToken}
                       onChange={(e) => setMfaToken(e.target.value)}
+                      error={!!error} // Marca el campo como error si hay un mensaje de error
+                      helperText={error} // Muestra el mensaje de error
                     />
                   </>
                 )}

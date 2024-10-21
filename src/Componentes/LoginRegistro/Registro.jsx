@@ -138,14 +138,15 @@ function Registro() {
 
     const handlePrevious = () => setStep(step - 1);
 
-    const handleSubmitRegistro = (e) => {
+    const handleSubmitRegistro = async (e) => {
         e.preventDefault();
         if (passwordStrength < 2) {
-            mostrarAlerta('La contraseña es demasiado débil. Por favor, elige una contraseña más fuerte.');
-            return;
+          mostrarAlerta('La contraseña es demasiado débil. Por favor, elige una contraseña más fuerte.');
+          return;
         }
-
-        handleSubmit(
+    
+        try {
+          await handleSubmit(
             e,
             password,
             confirmPassword,
@@ -154,8 +155,8 @@ function Registro() {
             mostrarAlerta,
             setError,
             (mensajeExito) => {
-                mostrarExito(mensajeExito);
-                setStep(3);  
+              mostrarExito(mensajeExito);
+              setStep(3);
             },
             nombre,
             apellidoPaterno,
@@ -164,29 +165,37 @@ function Registro() {
             edad,
             sexo,
             correo,
-            csrfToken, // Pasamos el token CSRF a la función de registro
-            'include'  // Incluimos las cookies para que se envíe el token
+            csrfToken
+          );
+        } catch (error) {
+          if (error.response && error.response.status === 429) {
+            mostrarAlerta('Demasiadas solicitudes desde esta IP, por favor intenta de nuevo más tarde.');
+          }
+        }
+      };
 
-        );
-    };
-
-    const handleSubmitVerificationCode = (e) => {
-        e.preventDefault();
-        handleSubmitVerification(
-            e,
-            correo,
-            codigoVerificacion,
-            mostrarAlerta,
-            (mensajeExito) => {
-                mostrarExito("¡Registro exitoso! Serás redirigido al inicio de sesión.");  
-                setTimeout(() => {
-                    navigate("/login");
-                }, 3000);  
-            },
-            csrfToken, // Pasamos el token CSRF a la función de verificación
-            setStep
-        );
-    };
+    const handleSubmitVerificationCode = async (e) => {
+    e.preventDefault();
+    try {
+      await handleSubmitVerification(
+        e,
+        correo,
+        codigoVerificacion,
+        mostrarAlerta,
+        (mensajeExito) => {
+          mostrarExito("¡Registro exitoso! Serás redirigido al inicio de sesión.");  
+          setTimeout(() => {
+            navigate("/login");
+          }, 3000);  
+        },
+        csrfToken
+      );
+    } catch (error) {
+      if (error.response && error.response.status === 429) {
+        mostrarAlerta('Demasiadas solicitudes de verificación desde esta IP, por favor intenta de nuevo más tarde.');
+      }
+    }
+  };
 
     // Validaciones en tiempo real
     const handleNombreChange = (e) => {

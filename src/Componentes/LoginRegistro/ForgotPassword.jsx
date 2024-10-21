@@ -6,26 +6,26 @@ function ForgotPassword() {
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
+  const [csrfToken, setCsrfToken] = useState('');
 
   // Función para obtener el token CSRF
   const obtenerCsrfToken = async () => {
     try {
       const response = await fetch('http://localhost:4000/api/get-csrf-token', {
         method: 'GET',
-        credentials: 'include', // Incluir cookies para obtener el token CSRF
+        credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
-        setCsrfToken(data.csrfToken); // Almacenar el token CSRF
+        setCsrfToken(data.csrfToken);
       }
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
     }
   };
 
-  // Llamar a obtenerCsrfToken al montar el componente
+  // Obtener el CSRF token cuando se monta el componente
   useEffect(() => {
     obtenerCsrfToken();
   }, []);
@@ -38,23 +38,32 @@ function ForgotPassword() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'CSRF-Token': csrfToken, // Incluir el token CSRF en la cabecera
+          'CSRF-Token': csrfToken,
         },
-        credentials: 'include', // Incluir cookies para obtener el token CSRF
-
+        credentials: 'include',
         body: JSON.stringify({ correo }),
       });
 
       const data = await response.json();
+
+      // Manejar la respuesta
       if (response.ok) {
         setSuccessMessage(data.message);
+        setError('');
+        setOpenSnackbar(true);
+      } else if (response.status === 429) {
+        // Manejar el error de Rate Limit (código 429)
+        setError('Demasiadas solicitudes. Intenta de nuevo más tarde.');
+        setSuccessMessage('');
         setOpenSnackbar(true);
       } else {
         setError(data.message);
+        setSuccessMessage('');
         setOpenSnackbar(true);
       }
     } catch (error) {
       setError('Error al solicitar la recuperación de contraseña.');
+      setSuccessMessage('');
       setOpenSnackbar(true);
     }
   };
@@ -79,6 +88,7 @@ function ForgotPassword() {
           </Button>
         </form>
 
+        {/* Mostrar el mensaje en Snackbar */}
         <Snackbar open={openSnackbar} autoHideDuration={3000} onClose={() => setOpenSnackbar(false)}>
           <Alert onClose={() => setOpenSnackbar(false)} severity={successMessage ? 'success' : 'error'}>
             {successMessage || error}
