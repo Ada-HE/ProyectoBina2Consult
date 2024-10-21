@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, IconButton, Menu, MenuItem, useTheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home'; // Icono de inicio
 import LogoutIcon from '@mui/icons-material/Logout'; // Icono de cerrar sesión
+import Brightness4Icon from '@mui/icons-material/Brightness4'; // Icono para cambiar de tema
 import { Link, useNavigate } from 'react-router-dom'; // Importar useNavigate para redireccionar
 
-const BarraNavAdm = () => {
+const BarraNavAdm = ({ toggleTheme, themeMode }) => {
+  const theme = useTheme(); // Hook para obtener el tema actual
   const [anchorEl, setAnchorEl] = useState(null);
   const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
   const navigate = useNavigate(); // Hook para redireccionar
@@ -34,7 +36,7 @@ const BarraNavAdm = () => {
   // Función para cerrar sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/logout', { // Asegúrate de apuntar al backend correcto
+      const response = await fetch('http://localhost:4000/api/logout', {
         method: 'POST',
         credentials: 'include', // Para incluir las cookies en la solicitud
         headers: {
@@ -61,12 +63,16 @@ const BarraNavAdm = () => {
     setAnchorEl(null);
   };
 
+  // Colores personalizados según el tema
+  const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c'; // Fondo oscuro azul en modo oscuro
+  const textColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#ffffff'; // Azul brillante en modo oscuro
+
   return (
-    <AppBar position="static" sx={{ backgroundColor: '#01349c' }}>
+    <AppBar position="static" sx={{ backgroundColor: backgroundColor, boxShadow: '0px 4px 10px rgba(0, 191, 255, 0.5)' }}>
       <Toolbar sx={{ paddingY: 2 }}>
         <Typography 
           variant="h5" 
-          sx={{ flexGrow: 1, fontWeight: 'bold', fontSize: '1.5rem' }}
+          sx={{ flexGrow: 1, fontWeight: 'bold', fontSize: '1.5rem', color: textColor }}
         >
           Consultorio Dental - Admin
         </Typography>
@@ -76,29 +82,39 @@ const BarraNavAdm = () => {
           color="inherit" 
           component={Link} 
           to="/inicio" 
-          sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem' }}
+          sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem', color: textColor }}
         >
-          <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem' }} />
+          <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem', color: textColor }} /> 
           Inicio
         </Button>
         <Button 
           color="inherit"
-          onClick={handleLogout} // Vinculamos el botón de cerrar sesión con la función
-          sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem' }}
+          onClick={handleLogout}
+          sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem', color: textColor }}
         >
-          <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem' }} />
+          <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem', color: textColor }} />
           Cerrar Sesión
         </Button>
+
+        {/* Botón para alternar el tema */}
+        <IconButton
+          color="inherit"
+          aria-label="toggle theme"
+          onClick={toggleTheme}
+          sx={{ color: textColor, marginLeft: '1rem' }}
+        >
+          <Brightness4Icon sx={{ fontSize: '1.8rem' }} /> {/* Ícono para alternar entre oscuro y claro */}
+        </IconButton>
 
         {/* Menú de hamburguesa para pantallas pequeñas */}
         <IconButton
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '2rem' }}
+          sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '2rem', color: textColor }}
           onClick={handleMenuOpen}
         >
-          <MenuIcon sx={{ fontSize: '2rem' }} />
+          <MenuIcon sx={{ fontSize: '2rem', color: textColor }} />
         </IconButton>
         
         <Menu
@@ -108,11 +124,11 @@ const BarraNavAdm = () => {
           sx={{ display: { xs: 'block', sm: 'none' } }}
         >
           <MenuItem onClick={handleMenuClose} component={Link} to="/inicio">
-            <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem' }} />
+            <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
             Inicio
           </MenuItem>
           <MenuItem onClick={() => { handleMenuClose(); handleLogout(); }}>
-            <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem' }} />
+            <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
             Cerrar Sesión
           </MenuItem>
         </Menu>

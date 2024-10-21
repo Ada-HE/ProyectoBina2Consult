@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
+import { createTheme, ThemeProvider, CssBaseline } from '@mui/material';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-
 import CookieConsent from './Componentes/LoginRegistro/CookieConsent';
-
 
 import LayoutPublico from './Componentes/compartidos/LayoutPublico';
 import Registro from './Componentes/LoginRegistro/Registro';
@@ -18,40 +17,67 @@ import LayoutAdmin from './Componentes/compartidos/LayoutAdmin';
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
 
+// Define temas claro y oscuro
+const lightTheme = createTheme({
+  palette: {
+    mode: 'light',
+    background: {
+      default: '#ffffff',
+      paper: '#f5f5f5',
+    },
+    text: {
+      primary: '#000000',
+    },
+  },
+});
+
+const darkTheme = createTheme({
+  palette: {
+    mode: 'dark',
+    background: {
+      default: '#121212',
+      paper: '#1e1e1e',
+    },
+    text: {
+      primary: '#ffffff',
+    },
+  },
+});
+
 function App() {
   const navigate = useNavigate();
-  const [tipoUsuario, setTipoUsuario] = useState(null); // Estado para guardar el tipo de usuario
-  const [loading, setLoading] = useState(true); // Estado de carga mientras verificamos autenticación
+  const [tipoUsuario, setTipoUsuario] = useState(null); 
+  const [loading, setLoading] = useState(true); 
+  const [themeMode, setThemeMode] = useState('light'); // Estado del tema
 
+  // Detectar el tema preferido del navegador
   useEffect(() => {
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      setThemeMode(savedTheme); // Restaurar tema del localStorage
+    } else {
+      const preferedTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      setThemeMode(preferedTheme);
+    }
+
     const verificarAutenticacion = async () => {
       try {
-        console.log('Verificando autenticación...');
-
-        // Hacer una solicitud GET para verificar la autenticación
         const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
           method: 'GET',
-          credentials: 'include', // Incluir las cookies en la solicitud
+          credentials: 'include',
         });
 
-        // Log para ver la respuesta del servidor
-        console.log('Respuesta del servidor:', response);
-
-        // Si la respuesta es exitosa
         if (response.ok) {
           const data = await response.json();
-          console.log('Datos recibidos:', data); // Mostrar los datos que recibimos del servidor
-
-          setTipoUsuario(data.tipoUsuario); // Establecemos el tipo de usuario si está autenticado
+          setTipoUsuario(data.tipoUsuario);
         } else {
-          console.log('No autenticado. Permitir acceso solo a rutas públicas.');
-          setTipoUsuario(null); // No autenticado, establecer null
+          setTipoUsuario(null);
         }
       } catch (error) {
         console.error('Error en la verificación de autenticación:', error);
-        setTipoUsuario(null); // Error en la verificación, usuario no autenticado
+        setTipoUsuario(null);
       } finally {
-        setLoading(false); // Terminamos de cargar la verificación
+        setLoading(false);
       }
     };
 
@@ -59,25 +85,27 @@ function App() {
   }, [navigate]);
 
   if (loading) {
-    // Muestra un mensaje de carga o spinner mientras verificas la autenticación
     return <div>Loading...</div>;
   }
 
-  return (
-    <>
-      {/* Barra de consentimiento de cookies */}
-      <CookieConsent />
+  const toggleTheme = () => {
+    const newTheme = themeMode === 'light' ? 'dark' : 'light';
+    setThemeMode(newTheme);
+    localStorage.setItem('theme', newTheme); // Guardar tema en localStorage
+  };
 
-      {/* Rutas de la aplicación */}
+  return (
+    <ThemeProvider theme={themeMode === 'light' ? lightTheme : darkTheme}>
+      <CssBaseline />
+      <CookieConsent />
+      
       <Routes>
-        {/* Rutas públicas */}
-        <Route path="/" element={<LayoutPublico><Bienvenida /></LayoutPublico>} />
+        <Route path="/" element={<LayoutPublico toggleTheme={toggleTheme} themeMode={themeMode}><Bienvenida /></LayoutPublico>} />
         <Route path="/registro" element={<Registro />} />
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
 
-        {/* Si no está autenticado, puede acceder solo a rutas públicas */}
         {tipoUsuario === null && (
           <>
             <Route path="/registro" element={<Registro />} />
@@ -85,24 +113,26 @@ function App() {
           </>
         )}
 
-        {/* Rutas privadas para pacientes */}
         {tipoUsuario === 'paciente' && (
-          <>
-            <Route path="/inicio" element={<LayoutPaciente><BienvenidaPaciente /></LayoutPaciente>} />
-          </>
+          <Route path="/inicio" element={
+            <LayoutPaciente toggleTheme={toggleTheme} themeMode={themeMode}>
+              <BienvenidaPaciente />
+            </LayoutPaciente>
+          } />
         )}
 
-        {/* Rutas privadas para administradores */}
         {tipoUsuario === 'administrador' && (
-          <>
-            <Route path="/inicio-admin" element={<LayoutAdmin><BienvenidaAdmin /></LayoutAdmin>} />
-          </>
+          <Route path="/inicio-admin" element={
+            <LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}>
+              <BienvenidaAdmin />
+            </LayoutAdmin>
+          } />
         )}
 
-        {/* Redirigir cualquier ruta desconocida a la página de login si no está autenticado */}
         <Route path="*" element={<Navigate to={tipoUsuario ? "/inicio" : "/login"} />} />
       </Routes>
-    </>
+    </ThemeProvider>
   );
 }
+
 export default App;
