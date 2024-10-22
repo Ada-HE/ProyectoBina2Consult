@@ -18,9 +18,12 @@ import DeslindeLegalForm from './Componentes/Administrativo/CRUD/DeslindeLegalFo
 import FormularioTerminosCondiciones from './Componentes/Administrativo/CRUD/TerminosCondiciones';
 import FormularioRedesSociales from './Componentes/Administrativo/CRUD/RedesSociales';
 import FormularioEslogan from './Componentes/Administrativo/Empresa/Eslogan';
+import FormularioLogoNombre from './Componentes/Administrativo/Empresa/NombreLogo';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
+
+import EmpresaInfo from './EmpresaInfo ';
 
 // Define temas claro y oscuro
 const lightTheme = createTheme({
@@ -100,10 +103,11 @@ function App() {
   };
 
   return (
+    
     <ThemeProvider theme={themeMode === 'light' ? lightTheme : darkTheme}>
       <CssBaseline />
       <CookieConsent />
-      
+      <EmpresaInfo />
       <Routes>
         <Route path="/" element={<LayoutPublico toggleTheme={toggleTheme} themeMode={themeMode}><Bienvenida /></LayoutPublico>} />
         <Route path="/registro" element={<Registro />} />
@@ -139,6 +143,7 @@ function App() {
           <Route path="/terminos-condiciones" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioTerminosCondiciones /></LayoutAdmin>}/>
           <Route path="/redes-sociales" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioRedesSociales /></LayoutAdmin>}/>
           <Route path="/registro-slogan" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioEslogan /></LayoutAdmin>}/>
+          <Route path="/subida-logo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioLogoNombre /></LayoutAdmin>}/>
 
           </>
         )}
