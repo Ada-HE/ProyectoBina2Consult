@@ -124,6 +124,9 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
           <MenuItem onClick={handleCrudMenuClose} component={Link} to="/terminos-condiciones">
             Términos y Condiciones
           </MenuItem>
+          <MenuItem onClick={handleCrudMenuClose} component={Link} to="/redes-sociales">
+            Redes Sociales
+          </MenuItem>
           {/* Puedes agregar más submenús aquí */}
         </Menu>
 
