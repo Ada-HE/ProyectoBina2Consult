@@ -13,6 +13,7 @@ import BienvenidaPaciente from './Componentes/Paciente/BienvenidaPaciente';
 
 import BienvenidaAdmin from './Componentes/Administrativo/BienvenidaAdmin';
 import LayoutAdmin from './Componentes/compartidos/LayoutAdmin';
+import FormularioPoliticasPrivacidad from './Componentes/Administrativo/CRUD/PoliticasDePrivacidad';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -62,7 +63,7 @@ function App() {
 
     const verificarAutenticacion = async () => {
       try {
-        const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-autenticacion', {
+        const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
           method: 'GET',
           credentials: 'include',
         });
@@ -114,6 +115,7 @@ function App() {
         )}
 
         {tipoUsuario === 'paciente' && (
+          
           <Route path="/inicio" element={
             <LayoutPaciente toggleTheme={toggleTheme} themeMode={themeMode}>
               <BienvenidaPaciente />
@@ -122,11 +124,15 @@ function App() {
         )}
 
         {tipoUsuario === 'administrador' && (
+          <>
           <Route path="/inicio-admin" element={
             <LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}>
               <BienvenidaAdmin />
             </LayoutAdmin>
           } />
+          <Route path="/politicas-privacidad" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioPoliticasPrivacidad /></LayoutAdmin>}/>
+
+          </>
         )}
 
         <Route path="*" element={<Navigate to={tipoUsuario ? "/inicio" : "/login"} />} />

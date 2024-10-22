@@ -25,7 +25,7 @@ function ResetPassword() {
   // Función para obtener el token CSRF
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include', // Incluir cookies para obtener el token CSRF
       });
@@ -122,7 +122,7 @@ function ResetPassword() {
     }
 
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/cambiar-contrasena', {
+      const response = await fetch('http://localhost:4000/api/cambiar-contrasena', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
