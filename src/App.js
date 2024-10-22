@@ -17,6 +17,7 @@ import FormularioPoliticasPrivacidad from './Componentes/Administrativo/CRUD/Pol
 import DeslindeLegalForm from './Componentes/Administrativo/CRUD/DeslindeLegalForm';
 import FormularioTerminosCondiciones from './Componentes/Administrativo/CRUD/TerminosCondiciones';
 import FormularioRedesSociales from './Componentes/Administrativo/CRUD/RedesSociales';
+import FormularioEslogan from './Componentes/Administrativo/Empresa/Eslogan';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -137,6 +138,7 @@ function App() {
           <Route path="/deslinde-legal" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><DeslindeLegalForm /></LayoutAdmin>}/>
           <Route path="/terminos-condiciones" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioTerminosCondiciones /></LayoutAdmin>}/>
           <Route path="/redes-sociales" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioRedesSociales /></LayoutAdmin>}/>
+          <Route path="/registro-slogan" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioEslogan /></LayoutAdmin>}/>
 
           </>
         )}

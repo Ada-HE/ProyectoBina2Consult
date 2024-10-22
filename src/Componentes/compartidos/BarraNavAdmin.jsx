@@ -5,6 +5,7 @@ import HomeIcon from '@mui/icons-material/Home'; // Icono de inicio
 import LogoutIcon from '@mui/icons-material/Logout'; // Icono de cerrar sesión
 import Brightness4Icon from '@mui/icons-material/Brightness4'; // Icono para cambiar de tema
 import SettingsIcon from '@mui/icons-material/Settings'; // Icono para el menú Crud
+import BusinessIcon from '@mui/icons-material/Business'; // Icono para el menú Empresa
 import { Link, useNavigate } from 'react-router-dom'; // Importar useNavigate para redireccionar
 
 const BarraNavAdm = ({ toggleTheme, themeMode }) => {
@@ -12,6 +13,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [csrfToken, setCsrfToken] = useState(''); // Estado para el token CSRF
   const [crudAnchorEl, setCrudAnchorEl] = useState(null); // Estado para el anclaje del menú "Crud"
+  const [empresaAnchorEl, setEmpresaAnchorEl] = useState(null); // Estado para el anclaje del menú "Empresa"
   const navigate = useNavigate(); // Hook para redireccionar
   
   // Obtener el token CSRF al montar el componente
@@ -73,6 +75,14 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
     setCrudAnchorEl(null); // Cerrar el menú "Crud"
   };
 
+  const handleEmpresaMenuOpen = (event) => {
+    setEmpresaAnchorEl(event.currentTarget); // Abrir el menú "Empresa"
+  };
+
+  const handleEmpresaMenuClose = () => {
+    setEmpresaAnchorEl(null); // Cerrar el menú "Empresa"
+  };
+
   // Colores personalizados según el tema
   const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c'; // Fondo oscuro azul en modo oscuro
   const textColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#ffffff'; // Azul brillante en modo oscuro
@@ -127,7 +137,37 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
           <MenuItem onClick={handleCrudMenuClose} component={Link} to="/redes-sociales">
             Redes Sociales
           </MenuItem>
-          {/* Puedes agregar más submenús aquí */}
+        </Menu>
+
+        {/* Botón del menú Empresa con ícono de empresa */}
+        <Button
+          color="inherit"
+          aria-controls="empresa-menu"
+          aria-haspopup="true"
+          onClick={handleEmpresaMenuOpen}
+          sx={{ display: { xs: 'none', sm: 'flex' }, fontSize: '1.1rem', color: textColor, marginLeft: '1rem' }}
+        >
+          <BusinessIcon sx={{ marginRight: '0.5rem', fontSize: '1.8rem', color: textColor }} />
+          Empresa
+        </Button>
+        <Menu
+          id="empresa-menu"
+          anchorEl={empresaAnchorEl}
+          open={Boolean(empresaAnchorEl)}
+          onClose={handleEmpresaMenuClose}
+        >
+          <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/registro-slogan">
+            Registro y Actualización de Slogan
+          </MenuItem>
+          <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/subida-logo">
+            Subida y Actualización del Logo
+          </MenuItem>
+          <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/configuracion-titulo-pagina">
+            Configuración del Título de Página
+          </MenuItem>
+          <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/registro-contacto">
+            Registro y Actualización de Datos de Contacto
+          </MenuItem>
         </Menu>
 
         <Button 
@@ -166,18 +206,6 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
           onClose={handleMenuClose}
           sx={{ display: { xs: 'block', sm: 'none' } }}
         >
-          <MenuItem onClick={handleMenuClose} component={Link} to="/inicio-admin">
-            <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
-            Inicio
-          </MenuItem>
-          <MenuItem onClick={() => { handleMenuClose(); handleLogout(); }}>
-            <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
-            Cerrar Sesión
-          </MenuItem>
-        </Menu>
-      </Toolbar>
-    </AppBar>
-  );
-};
+          <MenuItem onClick={handleMenuClose} component={Link} to="/inicio-admin"> <HomeIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} /> Inicio </MenuItem> <MenuItem onClick={() => { handleMenuClose(); handleLogout(); }}> <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} /> Cerrar Sesión </MenuItem> </Menu> </Toolbar> </AppBar> ); };
 
 export default BarraNavAdm;
