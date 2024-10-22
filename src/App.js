@@ -14,6 +14,7 @@ import BienvenidaPaciente from './Componentes/Paciente/BienvenidaPaciente';
 import BienvenidaAdmin from './Componentes/Administrativo/BienvenidaAdmin';
 import LayoutAdmin from './Componentes/compartidos/LayoutAdmin';
 import FormularioPoliticasPrivacidad from './Componentes/Administrativo/CRUD/PoliticasDePrivacidad';
+import DeslindeLegalForm from './Componentes/Administrativo/CRUD/DeslindeLegalForm';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -131,6 +132,7 @@ function App() {
             </LayoutAdmin>
           } />
           <Route path="/politicas-privacidad" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioPoliticasPrivacidad /></LayoutAdmin>}/>
+          <Route path="/deslinde-legal" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><DeslindeLegalForm /></LayoutAdmin>}/>
 
           </>
         )}

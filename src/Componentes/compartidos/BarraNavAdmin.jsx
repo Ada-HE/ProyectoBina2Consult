@@ -118,6 +118,9 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
           <MenuItem onClick={handleCrudMenuClose} component={Link} to="/politicas-privacidad">
             Políticas y Privacidad
           </MenuItem>
+          <MenuItem onClick={handleCrudMenuClose} component={Link} to="/deslinde-legal">
+            Deslinde Legal
+          </MenuItem>
           {/* Puedes agregar más submenús aquí */}
         </Menu>
 
