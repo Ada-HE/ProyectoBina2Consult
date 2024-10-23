@@ -7,9 +7,13 @@ import LayoutPublico from './Componentes/compartidos/LayoutPublico';
 import Registro from './Componentes/LoginRegistro/Registro';
 import Login from './Componentes/LoginRegistro/Login';
 import Bienvenida from './Componentes/Publico/Bienvenida';
+import PoliticasPrivacidad from './Componentes/Publico/PoliticaPrivacidad';
+import DeslindeLegal from './Componentes/Publico/DeslindeLegal';
+import TerminosCondiciones from './Componentes/Publico/TerminosCondiciones';
 
 import LayoutPaciente from './Componentes/compartidos/LayoutPaciente';
 import BienvenidaPaciente from './Componentes/Paciente/BienvenidaPaciente';
+import UserProfile from './Componentes/Paciente/UserProfile';
 
 import BienvenidaAdmin from './Componentes/Administrativo/BienvenidaAdmin';
 import LayoutAdmin from './Componentes/compartidos/LayoutAdmin';
@@ -19,6 +23,7 @@ import FormularioTerminosCondiciones from './Componentes/Administrativo/CRUD/Ter
 import FormularioRedesSociales from './Componentes/Administrativo/CRUD/RedesSociales';
 import FormularioEslogan from './Componentes/Administrativo/Empresa/Eslogan';
 import FormularioLogoNombre from './Componentes/Administrativo/Empresa/NombreLogo';
+import FormularioContacto from './Componentes/Administrativo/Empresa/RegistroContacto';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -114,6 +119,10 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
+        <Route path="/politicaPrivacidad" element={<LayoutPublico toggleTheme={toggleTheme} themeMode={themeMode}><PoliticasPrivacidad /></LayoutPublico>} />
+        <Route path="/deslindeLegal" element={<LayoutPublico toggleTheme={toggleTheme} themeMode={themeMode}><DeslindeLegal /></LayoutPublico>} />
+        <Route path="/terminosCondiciones" element={<LayoutPublico toggleTheme={toggleTheme} themeMode={themeMode}><TerminosCondiciones /></LayoutPublico>} />
+
 
         {tipoUsuario === null && (
           <>
@@ -123,12 +132,18 @@ function App() {
         )}
 
         {tipoUsuario === 'paciente' && (
-          
-          <Route path="/inicio" element={
+          <><Route path="/inicio" element={
             <LayoutPaciente toggleTheme={toggleTheme} themeMode={themeMode}>
               <BienvenidaPaciente />
             </LayoutPaciente>
           } />
+          <Route path="/perfil" element={
+            <LayoutPaciente toggleTheme={toggleTheme} themeMode={themeMode}>
+              <UserProfile />
+            </LayoutPaciente>
+          } />
+          </>
+          
         )}
 
         {tipoUsuario === 'administrador' && (
@@ -144,6 +159,7 @@ function App() {
           <Route path="/redes-sociales" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioRedesSociales /></LayoutAdmin>}/>
           <Route path="/registro-slogan" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioEslogan /></LayoutAdmin>}/>
           <Route path="/subida-logo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioLogoNombre /></LayoutAdmin>}/>
+          <Route path="/registro-contacto" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioContacto /></LayoutAdmin>}/>
 
           </>
         )}
