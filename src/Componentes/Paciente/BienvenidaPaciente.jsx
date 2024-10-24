@@ -54,8 +54,9 @@ const BienvenidaPaciente = () => {
       <Box>
         {/* Muestra el logo si está disponible */}
         {logoNombre.logo && (
+          
           <img
-            src={`/${logoNombre.logo}`}
+            src={logoNombre.logo}
             alt="Logo Empresa"
             style={{
               width: '200px',

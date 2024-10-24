@@ -214,12 +214,12 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
         <Toolbar sx={{ paddingY: 2 }}>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             {logoNombre.logo && (
-              <img
-                src={`/${logoNombre.logo}`}
-                alt="Logo Empresa"
-                style={{ width: '50px', marginRight: '15px' }}
-              />
-            )}
+  <img
+    src={logoNombre.logo}  // Usa la URL completa de Cloudinary
+    alt="Logo Empresa"
+    style={{ width: '50px', marginRight: '15px' }}
+  />
+)}
             <Typography
               variant="h5"
               sx={{ fontWeight: 'bold', fontSize: '1.5rem', color: textColor }}

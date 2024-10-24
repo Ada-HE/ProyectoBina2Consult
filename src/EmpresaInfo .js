@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 
 const EmpresaInfo = () => {
   const [empresa, setEmpresa] = useState({ nombre: '', logo: '' });
-  const [isLoading, setIsLoading] = useState(true); // Estado para controlar si los datos están cargando
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     // Realiza la petición al backend para obtener el nombre y logo de la empresa
@@ -21,28 +21,24 @@ const EmpresaInfo = () => {
       });
   }, []);
 
-  // Este useEffect maneja el cambio del favicon
+  // Este useEffect maneja el cambio del favicon con la URL de Cloudinary
   useEffect(() => {
     if (empresa.logo) {
       const favicon = document.querySelector("link[rel='icon']") || document.createElement('link');
       favicon.rel = 'icon';
-      favicon.href = `/${empresa.logo}?v=${new Date().getTime()}`; // Forzar al navegador a recargar el favicon
+      favicon.href = `${empresa.logo}?v=${new Date().getTime()}`; // Usamos la URL de Cloudinary
       document.head.appendChild(favicon); // Asegúrate de agregarlo al <head> si no existe
     }
-  }, [empresa.logo]); // Solo se ejecuta cuando el logo cambia
+  }, [empresa.logo]);
 
   // Este useEffect maneja el cambio del título de la pestaña
   useEffect(() => {
     if (!isLoading && empresa.nombre) {
       document.title = empresa.nombre || ''; // Actualiza el título solo cuando los datos están listos
     }
-  }, [empresa.nombre, isLoading]); // Solo se ejecuta cuando el nombre cambia y no está cargando
+  }, [empresa.nombre, isLoading]);
 
-  return (
-    <>
-      {/* No necesitas "Helmet" aquí si solo quieres actualizar el título y favicon */}
-    </>
-  );
+  return null; // No renderiza nada en la pantalla
 };
 
 export default EmpresaInfo;
