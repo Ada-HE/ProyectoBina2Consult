@@ -17,7 +17,7 @@ const FormularioTerminosCondiciones = () => {
   // Obtener el token CSRF cuando se monta el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -27,8 +27,8 @@ const FormularioTerminosCondiciones = () => {
   // Obtener las versiones de la política y la política vigente
   const obtenerPoliticas = async () => {
     try {
-      const responseVigente = await axios.get('http://localhost:4000/api/TyC/vigente');
-      const responseHistorial = await axios.get('http://localhost:4000/api/TyC/todas');
+      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/TyC/vigente');
+      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/TyC/todas');
 
       setVersionActual(responseVigente.data); // Política vigente
       setVersiones(responseHistorial.data.filter(politica => !politica.vigente)); // Filtrar solo las que no están vigentes
@@ -61,7 +61,7 @@ const FormularioTerminosCondiciones = () => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:4000/api/TyC/crear', formData, {
+      const response = await axios.post('https://backendproyectobina2.onrender.com/api/TyC/crear', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'CSRF-Token': csrfToken,
@@ -79,7 +79,7 @@ const FormularioTerminosCondiciones = () => {
   // Función para cambiar una política del historial a "vigente"
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('http://localhost:4000/api/TyC/activar', { id }, {
+      await axios.put('https://backendproyectobina2.onrender.com/api/TyC/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
@@ -99,7 +99,7 @@ const FormularioTerminosCondiciones = () => {
 const guardarEdicion = async () => {
     try {
       // Llamar al nuevo endpoint para editar la política
-      await axios.post('http://localhost:4000/api/TyC/editar', {
+      await axios.post('https://backendproyectobina2.onrender.com/api/TyC/editar', {
         id: versionActual.id, // Enviar el ID de la política actual
         titulo: versionActual.titulo,
         contenido: contenidoEditado, // Nuevo contenido
@@ -122,7 +122,7 @@ const guardarEdicion = async () => {
   // Función para eliminar lógicamente una política
 const eliminarPolitica = async (id) => {
     try {
-      await axios.put('http://localhost:4000/api/TyC/eliminar', { id }, {
+      await axios.put('https://backendproyectobina2.onrender.com/api/TyC/eliminar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
@@ -140,7 +140,7 @@ const eliminarPolitica = async (id) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '2rem', borderRadius: '8px', backgroundColor: backgroundColor, color: textColor }}>
       <Typography variant="h5" sx={{ fontWeight: 'bold', color: textColor }}>
-        {editando ? 'Editar Política de Privacidad' : 'Subir Nueva Política de Privacidad'}
+        {editando ? 'Editar Términos y Condiciones' : 'Subir Nuevo Términos y Condiciones'}
       </Typography>
 
       {/* Campo para seleccionar el archivo */}
@@ -166,7 +166,7 @@ const eliminarPolitica = async (id) => {
       </Button>
 
       {/* Tabla para la Política Vigente */}
-      <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Política de Privacidad Vigente</Typography>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Términos y Condiciones Vigente</Typography>
       {versionActual ? (
         <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
           <Table>
@@ -203,11 +203,11 @@ const eliminarPolitica = async (id) => {
           </Table>
         </TableContainer>
       ) : (
-        <Typography sx={{ color: textColor }}>No hay política vigente.</Typography>
+        <Typography sx={{ color: textColor }}>No hay Términos y Condiciones vigente.</Typography>
       )}
 
      {/* Historial de Políticas */}
-  <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Historial de Políticas</Typography>
+  <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Historial de Términos y Condiciones</Typography>
   {versiones.length > 0 ? (
     <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
       <Table>
@@ -259,7 +259,7 @@ const eliminarPolitica = async (id) => {
       </Table>
     </TableContainer>
   ) : (
-    <Typography sx={{ color: textColor }}>No hay políticas anteriores.</Typography>
+    <Typography sx={{ color: textColor }}>No hay Términos y Condiciones anteriores.</Typography>
   )}
 
       {/* Diálogo de edición */}

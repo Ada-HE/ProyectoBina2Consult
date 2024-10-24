@@ -15,7 +15,7 @@ const FormularioRedesSociales = () => {
   // Obtener el token CSRF cuando se monta el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -25,7 +25,7 @@ const FormularioRedesSociales = () => {
   // Obtener las redes sociales existentes
   const obtenerRedesSociales = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/redSocial', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/redSocial', { withCredentials: true });
       setRedesSociales(response.data);
     } catch (error) {
       console.error('Error al obtener las redes sociales:', error);
@@ -73,7 +73,7 @@ const FormularioRedesSociales = () => {
     event.preventDefault();
     if (!validarFormulario()) return; // Validar antes de enviar
     try {
-      await axios.post('http://localhost:4000/api/redSocial/crear', nuevaRedSocial, {
+      await axios.post('https://backendproyectobina2.onrender.com/api/redSocial/crear', nuevaRedSocial, {
         headers: {
           'CSRF-Token': csrfToken,
         },
@@ -111,7 +111,7 @@ const FormularioRedesSociales = () => {
   const guardarEdicion = async () => {
     if (!validarFormularioEdicion()) return; // Validar antes de guardar
     try {
-      await axios.put(`http://localhost:4000/api/redSocial/editar/${redSocialEditada.id}`, redSocialEditada, {
+      await axios.put(`https://backendproyectobina2.onrender.com/api/redSocial/editar/${redSocialEditada.id}`, redSocialEditada, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });

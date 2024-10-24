@@ -17,7 +17,7 @@ const DeslindeLegalForm = () => {
   // Obtener el token CSRF cuando se monta el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -27,8 +27,8 @@ const DeslindeLegalForm = () => {
   // Obtener las versiones del deslinde y el deslinde vigente
   const obtenerDeslindes = async () => {
     try {
-      const responseVigente = await axios.get('http://localhost:4000/api/deslinde/vigente');
-      const responseHistorial = await axios.get('http://localhost:4000/api/deslinde/todas');
+      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/deslinde/vigente');
+      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/deslinde/todas');
 
       setVersionActual(responseVigente.data); // Deslinde vigente
       setVersiones(responseHistorial.data.filter(deslinde => !deslinde.vigente)); // Filtrar solo los que no están vigentes
@@ -65,7 +65,7 @@ const DeslindeLegalForm = () => {
       formData.append('file', file); // Asegurarse de que el archivo se incluya en los datos del formulario
 
       try {
-        const response = await axios.post('http://localhost:4000/api/deslinde/crear', formData, {
+        const response = await axios.post('https://backendproyectobina2.onrender.com/api/deslinde/crear', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'CSRF-Token': csrfToken,
@@ -86,7 +86,7 @@ const DeslindeLegalForm = () => {
   // Función para cambiar un deslinde del historial a "vigente"
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('http://localhost:4000/api/deslinde/activar', { id }, {
+      await axios.put('https://backendproyectobina2.onrender.com/api/deslinde/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
@@ -106,7 +106,7 @@ const abrirEdicion = () => {
  // Función para manejar el guardado de la edición
 const guardarEdicion = async () => {
   try {
-    await axios.post('http://localhost:4000/api/deslinde/editar', {
+    await axios.post('https://backendproyectobina2.onrender.com/api/deslinde/editar', {
       id: versionActual.id,
       titulo: versionActual.titulo, // Mantener el título original
       contenido: contenidoEditado,  // El contenido editado será el nuevo
@@ -125,7 +125,7 @@ const guardarEdicion = async () => {
   // Función para eliminar lógicamente un deslinde
   const eliminarDeslinde = async (id) => {
     try {
-      await axios.put('http://localhost:4000/api/deslinde/eliminar', { id }, {
+      await axios.put('https://backendproyectobina2.onrender.com/api/deslinde/eliminar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });

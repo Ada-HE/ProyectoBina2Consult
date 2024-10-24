@@ -25,7 +25,7 @@ const FormularioLogoNombre = () => {
   // Obtener el token CSRF
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -35,7 +35,7 @@ const FormularioLogoNombre = () => {
   // Obtener los datos de nombre y logo
   const obtenerDatos = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/logo-nombre/ver');
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver');
       setDatos(response.data);
       if (response.data.length > 0) {
         setNombre(response.data[0].nombre);
@@ -92,7 +92,7 @@ const FormularioLogoNombre = () => {
 
     try {
       if (editMode) {
-        await axios.put(`http://localhost:4000/api/logo-nombre/actualizar/${idRegistro}`, formData, {
+        await axios.put(`https://backendproyectobina2.onrender.com/api/logo-nombre/actualizar/${idRegistro}`, formData, {
           headers: {
             'CSRF-Token': csrfToken,
             'Content-Type': 'multipart/form-data',
@@ -101,7 +101,7 @@ const FormularioLogoNombre = () => {
         });
         setSnackbar({ open: true, message: 'Nombre y logo actualizados con éxito', severity: 'success' });
       } else {
-        await axios.post('http://localhost:4000/api/logo-nombre/registrar', formData, {
+        await axios.post('https://backendproyectobina2.onrender.com/api/logo-nombre/registrar', formData, {
           headers: {
             'CSRF-Token': csrfToken,
             'Content-Type': 'multipart/form-data',

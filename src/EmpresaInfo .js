@@ -6,7 +6,7 @@ const EmpresaInfo = () => {
 
   useEffect(() => {
     // Realiza la petición al backend para obtener el nombre y logo de la empresa
-    fetch('http://localhost:4000/api/logo-nombre/ver')
+    fetch('https://backendproyectobina2.onrender.com/api/logo-nombre/ver')
       .then((response) => response.json())
       .then((data) => {
         if (data && data.length > 0) {

@@ -19,7 +19,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
   useEffect(() => {
     const obtenerCsrfToken = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
           method: 'GET',
           credentials: 'include',
         });
@@ -40,7 +40,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
   // Obtener nombre y logo desde la API
   const fetchLogoNombre = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/logo-nombre/ver'); // API para obtener nombre y logo
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver'); // API para obtener nombre y logo
       if (response.data.length > 0) {
         setLogoNombre(response.data[0]); // Asignar el primer registro
       }
@@ -51,7 +51,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/logout', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', {
         method: 'POST',
         headers: {
           'CSRF-Token': csrfToken,
@@ -89,7 +89,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
             <img 
               src={`/${logoNombre.logo}`} // Ruta para mostrar el logo desde la carpeta 'public' de React
               alt="Logo Empresa" 
-              style={{ width: '50px', height: 'auto', marginRight: '15px' }} // Estilos para el logo (mismo tamaño que en otros componentes)
+              style={{ width: '50px', height: 'auto', marginRight: '15px' }} // Estilos para el logo
             />
           )}
           <Typography 
@@ -164,6 +164,10 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
           <MenuItem onClick={() => { handleMenuClose(); handleLogout(); }}>
             <LogoutIcon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
             Cerrar Sesión
+          </MenuItem>
+          <MenuItem onClick={toggleTheme}>
+            <Brightness4Icon sx={{ marginRight: '0.5rem', fontSize: '1.5rem', color: textColor }} />
+            Cambiar Tema
           </MenuItem>
         </Menu>
       </Toolbar>

@@ -24,6 +24,8 @@ import FormularioRedesSociales from './Componentes/Administrativo/CRUD/RedesSoci
 import FormularioEslogan from './Componentes/Administrativo/Empresa/Eslogan';
 import FormularioLogoNombre from './Componentes/Administrativo/Empresa/NombreLogo';
 import FormularioContacto from './Componentes/Administrativo/Empresa/RegistroContacto';
+import ReporteIncidencias from './Componentes/Administrativo/Reporte/Incidencias ';
+import ActualizarIntentos from './Componentes/Administrativo/CRUD/ActualizarIntentos';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -75,7 +77,7 @@ function App() {
 
     const verificarAutenticacion = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-autenticacion', {
           method: 'GET',
           credentials: 'include',
         });
@@ -160,6 +162,8 @@ function App() {
           <Route path="/registro-slogan" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioEslogan /></LayoutAdmin>}/>
           <Route path="/subida-logo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioLogoNombre /></LayoutAdmin>}/>
           <Route path="/registro-contacto" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioContacto /></LayoutAdmin>}/>
+          <Route path="/reporte-incidencias" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><ReporteIncidencias /></LayoutAdmin>}/>
+          <Route path="/intento-bloqueo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><ActualizarIntentos /></LayoutAdmin>}/>
 
           </>
         )}
