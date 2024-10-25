@@ -26,6 +26,7 @@ import FormularioLogoNombre from './Componentes/Administrativo/Empresa/NombreLog
 import FormularioContacto from './Componentes/Administrativo/Empresa/RegistroContacto';
 import ReporteIncidencias from './Componentes/Administrativo/Reporte/Incidencias ';
 import ActualizarIntentos from './Componentes/Administrativo/CRUD/ActualizarIntentos';
+import ConsultarUsuariosBloqueados from './Componentes/Administrativo/CRUD/UsuarioBloqueado';
 
 import ForgotPassword from './Componentes/LoginRegistro/ForgotPassword';
 import ResetPassword from './Componentes/LoginRegistro/ResetPassword';
@@ -164,6 +165,7 @@ function App() {
           <Route path="/registro-contacto" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><FormularioContacto /></LayoutAdmin>}/>
           <Route path="/reporte-incidencias" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><ReporteIncidencias /></LayoutAdmin>}/>
           <Route path="/intento-bloqueo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><ActualizarIntentos /></LayoutAdmin>}/>
+          <Route path="/usuarios-bloqueo" element={<LayoutAdmin toggleTheme={toggleTheme} themeMode={themeMode}><ConsultarUsuariosBloqueados /></LayoutAdmin>}/>
 
           </>
         )}

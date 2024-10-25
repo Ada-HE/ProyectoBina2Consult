@@ -157,6 +157,9 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
             <ListItem button sx={{ pl: 4 }} component={Link} to="/redes-sociales">
               <ListItemText primary="Redes Sociales" />
             </ListItem>
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/intento-bloqueo">
+              <ListItemText primary="Bloqueo Intento" />
+            </ListItem>
           </List>
         </Collapse>
 
@@ -269,6 +272,9 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
             </MenuItem>
             <MenuItem onClick={handleCrudMenuClose} component={Link} to="/intento-bloqueo">
               Intentos Bloqueo
+            </MenuItem>
+            <MenuItem onClick={handleCrudMenuClose} component={Link} to="/usuarios-bloqueo">
+              Usuarios Bloqueo
             </MenuItem>
           </Menu>
 
