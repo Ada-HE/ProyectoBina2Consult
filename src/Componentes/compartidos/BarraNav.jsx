@@ -40,39 +40,40 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
   // Colores personalizados según el tema
   const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c'; 
   const textColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#ffffff';
+  const drawerBackgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#fff'; // Fondo del Drawer
+  const drawerTextColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#000'; // Texto del Drawer
 
   const drawerMenuItems = (
     <Box
-      sx={{ width: 250 }}
+      sx={{ width: 250, backgroundColor: drawerBackgroundColor, height: '100%' }} // Ajusta el fondo del Drawer
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        {/* Aquí usamos correctamente el atributo component={Link} */}
         <ListItem component={Link} to="/">
           <ListItemIcon>
-            <HomeIcon sx={{ color: textColor }} />
+            <HomeIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Inicio" sx={{ color: textColor }} />
+          <ListItemText primary="Inicio" sx={{ color: drawerTextColor }} />
         </ListItem>
         <ListItem component={Link} to="/login">
           <ListItemIcon>
-            <LoginIcon sx={{ color: textColor }} />
+            <LoginIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Login" sx={{ color: textColor }} />
+          <ListItemText primary="Login" sx={{ color: drawerTextColor }} />
         </ListItem>
         <ListItem component={Link} to="/registro">
           <ListItemIcon>
-            <PersonAddIcon sx={{ color: textColor }} />
+            <PersonAddIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Registrarse" sx={{ color: textColor }} />
+          <ListItemText primary="Registrarse" sx={{ color: drawerTextColor }} />
         </ListItem>
         <ListItem button onClick={toggleTheme}>
           <ListItemIcon>
-            <Brightness4Icon sx={{ color: textColor }} />
+            <Brightness4Icon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Cambiar Tema" sx={{ color: textColor }} />
+          <ListItemText primary="Cambiar Tema" sx={{ color: drawerTextColor }} />
         </ListItem>
       </List>
     </Box>
@@ -84,12 +85,12 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
         {/* Logo y nombre de la empresa */}
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
         {logoNombre.logo && (
-  <img
-    src={logoNombre.logo}  // Usa la URL completa de Cloudinary
-    alt="Logo Empresa"
-    style={{ width: '50px', marginRight: '15px' }}
-  />
-)}
+          <img
+            src={logoNombre.logo}  // Usa la URL completa de Cloudinary
+            alt="Logo Empresa"
+            style={{ width: '50px', marginRight: '15px' }}
+          />
+        )}
           <Typography 
             variant="h5" 
             sx={{ fontWeight: 'bold', fontSize: '1.5rem', color: textColor }}
