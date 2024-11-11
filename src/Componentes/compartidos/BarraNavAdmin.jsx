@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem, Collapse, useTheme, Box, Divider } from '@mui/material';
+import {
+  AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, Menu, MenuItem,
+  Collapse, useTheme, Box, Divider
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -14,9 +17,9 @@ import axios from 'axios';
 
 const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   const theme = useTheme();
-  const [drawerOpen, setDrawerOpen] = useState(false); // Estado para controlar el Drawer
-  const [openCrudSubmenu, setOpenCrudSubmenu] = useState(false); // Estado para abrir/cerrar submenú Crud
-  const [openEmpresaSubmenu, setOpenEmpresaSubmenu] = useState(false); // Estado para abrir/cerrar submenú Empresa
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [openCrudSubmenu, setOpenCrudSubmenu] = useState(false);
+  const [openEmpresaSubmenu, setOpenEmpresaSubmenu] = useState(false);
   const [crudAnchorEl, setCrudAnchorEl] = useState(null);
   const [empresaAnchorEl, setEmpresaAnchorEl] = useState(null);
   const [reportesAnchorEl, setReportesAnchorEl] = useState(null);
@@ -27,10 +30,15 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   // Obtener el nombre y logo desde la API
   const fetchLogoNombre = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver');
-      if (response.data.length > 0) {
-        setLogoNombre(response.data[0]);
-      }
+      const [logoResponse, nombreResponse] = await Promise.all([
+        fetch('http://localhost:4000/api/logo/vigente'),
+        fetch('http://localhost:4000/api/nombre/vigente')
+      ]);
+
+      const logoData = await logoResponse.json();
+      const nombreData = await nombreResponse.json();
+
+      setLogoNombre({ nombre: nombreData.nombre, logo: logoData.logo });
     } catch (error) {
       console.error('Error al obtener el nombre y logo:', error);
     }
@@ -41,9 +49,24 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
     obtenerCsrfToken();
   }, []);
 
+  useEffect(() => {
+    if (logoNombre.logo) {
+      const favicon = document.querySelector("link[rel='icon']") || document.createElement('link');
+      favicon.rel = 'icon';
+      favicon.href = `${logoNombre.logo}?v=${new Date().getTime()}`;
+      document.head.appendChild(favicon);
+    }
+  }, [logoNombre.logo]);
+
+  useEffect(() => {
+    if (logoNombre.nombre) {
+      document.title = logoNombre.nombre;
+    }
+  }, [logoNombre.nombre]);
+
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include',
       });
@@ -59,7 +82,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', {
+      const response = await fetch('http://localhost:4000/api/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {
@@ -84,7 +107,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
     setDrawerOpen(open);
   };
 
-  // Funciones para los menús y submenús en pantallas grandes
+  // Funciones para los menús en pantallas grandes
   const handleCrudMenuOpen = (event) => {
     setCrudAnchorEl(event.currentTarget);
   };
@@ -111,54 +134,61 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
 
   // Funciones para los submenús en el Drawer
   const handleCrudClick = () => {
-    setOpenCrudSubmenu(!openCrudSubmenu); // Alterna el submenú Crud
+    setOpenCrudSubmenu(!openCrudSubmenu);
   };
 
   const handleEmpresaClick = () => {
-    setOpenEmpresaSubmenu(!openEmpresaSubmenu); // Alterna el submenú Empresa
+    setOpenEmpresaSubmenu(!openEmpresaSubmenu);
   };
 
   const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c';
   const textColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#ffffff';
+  const drawerBackgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#ffffff';
+  const drawerTextColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#000000';
 
   const drawerMenuItems = (
     <Box
-      sx={{ width: 250 }}
+      sx={{
+        width: 250,
+        backgroundColor: drawerBackgroundColor,
+        color: drawerTextColor,
+        height: '100%',
+      }}
       role="presentation"
       onKeyDown={toggleDrawer(false)}
     >
       <List>
-        <ListItem button component={Link} to="/inicio-admin">
+        <ListItem button component={Link} to="/inicio-admin" onClick={toggleDrawer(false)}>
           <ListItemIcon>
-            <HomeIcon />
+            <HomeIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Inicio" />
+          <ListItemText primary="Inicio" sx={{ color: drawerTextColor }} />
         </ListItem>
 
         {/* Submenú Crud */}
         <ListItem button onClick={handleCrudClick}>
           <ListItemIcon>
-            <SettingsIcon />
+            <SettingsIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Crud" />
+          <ListItemText primary="Crud" sx={{ color: drawerTextColor }} />
           {openCrudSubmenu ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
         <Collapse in={openCrudSubmenu} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/politicas-privacidad">
-              <ListItemText primary="Políticas y Privacidad" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/politicas-privacidad" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Políticas y Privacidad" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/deslinde-legal">
-              <ListItemText primary="Deslinde Legal" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/deslinde-legal" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Deslinde Legal" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/terminos-condiciones">
-              <ListItemText primary="Términos y Condiciones" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/terminos-condiciones" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Términos y Condiciones" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/redes-sociales">
-              <ListItemText primary="Redes Sociales" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/redes-sociales" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Redes Sociales" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/intento-bloqueo">
-              <ListItemText primary="Bloqueo Intento" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/intento-bloqueo" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Bloqueo Intento" sx={{ color: drawerTextColor }} />
             </ListItem>
           </List>
         </Collapse>
@@ -166,46 +196,48 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
         {/* Submenú Empresa */}
         <ListItem button onClick={handleEmpresaClick}>
           <ListItemIcon>
-            <BusinessIcon />
+            <BusinessIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Empresa" />
+          <ListItemText primary="Empresa" sx={{ color: drawerTextColor }} />
           {openEmpresaSubmenu ? <ExpandLess /> : <ExpandMore />}
         </ListItem>
         <Collapse in={openEmpresaSubmenu} timeout="auto" unmountOnExit>
           <List component="div" disablePadding>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/registro-slogan">
-              <ListItemText primary="Registro y Actualización de Slogan" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/registro-slogan" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Actualización Eslogan" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/subida-logo">
-              <ListItemText primary="Título de la Página y Logo" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/subida-logo" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Actualización Logo" sx={{ color: drawerTextColor }} />
             </ListItem>
-            <ListItem button sx={{ pl: 4 }} component={Link} to="/registro-contacto">
-              <ListItemText primary="Registro y Actualización de Datos de Contacto" />
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/subida-empresa" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Actualización Nombre Empresa" sx={{ color: drawerTextColor }} />
+            </ListItem>
+            <ListItem button sx={{ pl: 4 }} component={Link} to="/registro-contacto" onClick={toggleDrawer(false)}>
+              <ListItemText primary="Actualización de Datos de Contacto" sx={{ color: drawerTextColor }} />
             </ListItem>
           </List>
         </Collapse>
 
-        <ListItem button component={Link} to="/reporte-incidencias">
+        <ListItem button component={Link} to="/reporte-incidencias" onClick={toggleDrawer(false)}>
           <ListItemIcon>
-            <AssessmentIcon />
+            <AssessmentIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Reporte de Incidencias" />
+          <ListItemText primary="Reporte de Incidencias" sx={{ color: drawerTextColor }} />
         </ListItem>
 
         <ListItem button onClick={handleLogout}>
           <ListItemIcon>
-            <LogoutIcon />
+            <LogoutIcon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary="Cerrar Sesión" />
+          <ListItemText primary="Cerrar Sesión" sx={{ color: drawerTextColor }} />
         </ListItem>
 
-        {/* Botón para alternar el tema */}
         <Divider />
         <ListItem button onClick={toggleTheme}>
           <ListItemIcon>
-            <Brightness4Icon />
+            <Brightness4Icon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
-          <ListItemText primary={`Cambiar a modo ${themeMode === 'dark' ? 'claro' : 'oscuro'}`} />
+          <ListItemText primary={`Cambiar a modo ${themeMode === 'dark' ? 'claro' : 'oscuro'}`} sx={{ color: drawerTextColor }} />
         </ListItem>
       </List>
     </Box>
@@ -217,12 +249,12 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
         <Toolbar sx={{ paddingY: 2 }}>
           <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
             {logoNombre.logo && (
-  <img
-    src={logoNombre.logo}  // Usa la URL completa de Cloudinary
-    alt="Logo Empresa"
-    style={{ width: '50px', marginRight: '15px' }}
-  />
-)}
+              <img
+                src={logoNombre.logo}
+                alt="Logo Empresa"
+                style={{ width: '50px', marginRight: '15px' }}
+              />
+            )}
             <Typography
               variant="h5"
               sx={{ fontWeight: 'bold', fontSize: '1.5rem', color: textColor }}
@@ -273,9 +305,6 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
             <MenuItem onClick={handleCrudMenuClose} component={Link} to="/intento-bloqueo">
               Intentos Bloqueo
             </MenuItem>
-            <MenuItem onClick={handleCrudMenuClose} component={Link} to="/usuarios-bloqueo">
-              Usuarios Bloqueo
-            </MenuItem>
           </Menu>
 
           <Button
@@ -295,13 +324,16 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
             onClose={handleEmpresaMenuClose}
           >
             <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/registro-slogan">
-              Registro y Actualización de Slogan
+              Actualización Eslogan
             </MenuItem>
             <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/subida-logo">
-              Título de la Página y Logo
+              Actualización Logo
+            </MenuItem>
+            <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/subida-empresa">
+              Actualización Nombre Empresa
             </MenuItem>
             <MenuItem onClick={handleEmpresaMenuClose} component={Link} to="/registro-contacto">
-              Registro y Actualización de Datos de Contacto
+              Actualización de Datos de Contacto
             </MenuItem>
           </Menu>
 
@@ -350,16 +382,16 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
             color="inherit"
             aria-label="menu"
             sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '2rem', color: textColor }}
-            onClick={toggleDrawer(true)} // Abre el Drawer al hacer clic
+            onClick={toggleDrawer(true)}
           >
             <MenuIcon sx={{ fontSize: '2rem', color: textColor }} />
           </IconButton>
         </Toolbar>
       </AppBar>
 
-      {/* Drawer que se desliza desde la derecha */}
+      {/* Drawer para el menú en pantallas pequeñas */}
       <Drawer
-        anchor="right" // Desliza desde la derecha
+        anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
       >

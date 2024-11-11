@@ -20,7 +20,7 @@ const ConsultarUsuariosBloqueados = () => {
   useEffect(() => {
     const obtenerCsrfToken = async () => {
       try {
-        const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+        const response = await fetch('http://localhost:4000/api/get-csrf-token', {
           method: 'GET',
           credentials: 'include',
         });
@@ -46,7 +46,7 @@ const ConsultarUsuariosBloqueados = () => {
     setLoading(true);
 
     try {
-      const response = await axios.get(`https://backendproyectobina2.onrender.com/api/usuarios-bloqueados`, {
+      const response = await axios.get(`http://localhost:4000/api/usuarios-bloqueados`, {
         params: { rango, minBloqueos },
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
@@ -77,7 +77,7 @@ const ConsultarUsuariosBloqueados = () => {
   const handleBloquearUsuario = async (id, cuenta_bloqueada) => {
     try {
       const nuevoEstadoBloqueo = cuenta_bloqueada ? 0 : 1; // Alternar entre bloqueado (1) y desbloqueado (0)
-      await axios.put(`https://backendproyectobina2.onrender.com/api/actualizar-bloqueo/${id}`, 
+      await axios.put(`http://localhost:4000/api/actualizar-bloqueo/${id}`, 
         { bloqueo: nuevoEstadoBloqueo }, 
         {
           headers: { 'CSRF-Token': csrfToken },

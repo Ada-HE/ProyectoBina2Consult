@@ -8,7 +8,7 @@ const ReporteIncidencias = () => {
   // Función para obtener las incidencias
   const fetchIncidencias = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/incidencias');
+      const response = await axios.get('http://localhost:4000/api/incidencias');
       setIncidencias(response.data);
     } catch (error) {
       console.error('Error al obtener incidencias:', error);

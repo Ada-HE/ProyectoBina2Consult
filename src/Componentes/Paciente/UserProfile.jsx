@@ -20,7 +20,7 @@ const UserProfile = () => {
   // Función para obtener los datos del perfil del usuario
   const fetchUserProfile = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/perfil', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/perfil', { withCredentials: true });
       setUserProfile(response.data);
       setLoading(false);
     } catch (error) {
@@ -33,7 +33,7 @@ const UserProfile = () => {
   // Obtener el token CSRF al cargar el componente
   const fetchCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken); // Guardamos el token CSRF
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -60,7 +60,7 @@ const UserProfile = () => {
   
     try {
       const response = await axios.post(
-        'https://backendproyectobina2.onrender.com/api/modificar-contrasena',
+        'http://localhost:4000/api/modificar-contrasena',
         {
           id: userProfile.id,  // Usar el id del usuario del perfil
           currentPassword,

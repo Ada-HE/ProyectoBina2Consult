@@ -5,31 +5,28 @@ import axios from 'axios';
 const BienvenidaAdmin = () => {
   const [logoNombre, setLogoNombre] = useState({});
   const [eslogan, setEslogan] = useState('');
-  
-  // Obtener el tema actual (claro u oscuro)
   const theme = useTheme();
 
   useEffect(() => {
-    // Solicitud para obtener el logo y nombre
+    // Función para obtener el logo y nombre de la empresa
     const fetchLogoNombre = async () => {
       try {
-        const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver');
-        if (response.data.length > 0) {
-          setLogoNombre(response.data[0]); // Accedemos al primer elemento del array
+        const response = await axios.get('http://localhost:4000/api/logo/vigente'); // Nuevo endpoint
+        if (response.data) {
+          setLogoNombre(response.data); // Asignar datos obtenidos
         }
-        
       } catch (error) {
-        console.error('Error al obtener el logo y nombre', error);
+        console.error('Error al obtener el logo vigente:', error);
       }
     };
 
-    // Solicitud para obtener el eslogan
+    // Función para obtener el eslogan
     const fetchEslogan = async () => {
       try {
-        const response = await axios.get('https://backendproyectobina2.onrender.com/api/eslogan');
+        const response = await axios.get('http://localhost:4000/api/eslogan');
         setEslogan(response.data.eslogan);
       } catch (error) {
-        console.error('Error al obtener el eslogan', error);
+        console.error('Error al obtener el eslogan:', error);
       }
     };
 
@@ -46,15 +43,13 @@ const BienvenidaAdmin = () => {
         justifyContent: 'center',
         alignItems: 'center',
         height: '100vh',
-        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#f0f4f8', // Color de fondo según el tema
+        backgroundColor: theme.palette.mode === 'dark' ? '#121212' : '#f0f4f8',
         textAlign: 'center',
         padding: '20px',
       }}
     >
       <Box>
-        {/* Muestra el logo si está disponible */}
         {logoNombre.logo && (
-          
           <img
             src={logoNombre.logo}
             alt="Logo Empresa"
@@ -66,11 +61,10 @@ const BienvenidaAdmin = () => {
             }}
           />
         )}
-        {/* Muestra el eslogan si está disponible */}
         {eslogan && (
           <Typography
             variant="h5"
-            color={theme.palette.mode === 'dark' ? 'textPrimary' : 'textSecondary'} // Color del texto según el tema
+            color={theme.palette.mode === 'dark' ? 'textPrimary' : 'textSecondary'}
             gutterBottom
             style={{
               fontWeight: '600',
@@ -80,10 +74,9 @@ const BienvenidaAdmin = () => {
             {eslogan}
           </Typography>
         )}
-        {/* Mensaje adicional */}
         <Typography
           variant="h6"
-          color={theme.palette.mode === 'dark' ? 'textSecondary' : 'textPrimary'} // Color del texto según el tema
+          color={theme.palette.mode === 'dark' ? 'textSecondary' : 'textPrimary'}
           style={{
             maxWidth: '600px',
             margin: '0 auto',

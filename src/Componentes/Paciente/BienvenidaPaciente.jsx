@@ -10,26 +10,25 @@ const BienvenidaPaciente = () => {
   const theme = useTheme();
 
   useEffect(() => {
-    // Solicitud para obtener el logo y nombre
+    // Solicitud para obtener el logo vigente usando el nuevo endpoint
     const fetchLogoNombre = async () => {
       try {
-        const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver');
-        if (response.data.length > 0) {
-          setLogoNombre(response.data[0]); // Accedemos al primer elemento del array
+        const response = await axios.get('http://localhost:4000/api/logo/vigente');
+        if (response.data) {
+          setLogoNombre(response.data); // Asigna el logo vigente obtenido
         }
-        
       } catch (error) {
-        console.error('Error al obtener el logo y nombre', error);
+        console.error('Error al obtener el logo y nombre:', error);
       }
     };
 
     // Solicitud para obtener el eslogan
     const fetchEslogan = async () => {
       try {
-        const response = await axios.get('https://backendproyectobina2.onrender.com/api/eslogan');
+        const response = await axios.get('http://localhost:4000/api/eslogan');
         setEslogan(response.data.eslogan);
       } catch (error) {
-        console.error('Error al obtener el eslogan', error);
+        console.error('Error al obtener el eslogan:', error);
       }
     };
 
@@ -54,7 +53,6 @@ const BienvenidaPaciente = () => {
       <Box>
         {/* Muestra el logo si está disponible */}
         {logoNombre.logo && (
-          
           <img
             src={logoNombre.logo}
             alt="Logo Empresa"

@@ -1,42 +1,38 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, TextField, Grid, Snackbar, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Switch, IconButton, Tooltip, Snackbar, Alert, useTheme } from '@mui/material';
+import { CloudUpload as CloudUploadIcon, CheckCircleOutline as CheckIcon } from '@mui/icons-material';
 import axios from 'axios';
 
-const FormularioLogoNombre = () => {
-  const [nombre, setNombre] = useState('');
+const FormularioLogo = () => {
+  const theme = useTheme();
   const [logo, setLogo] = useState(null);
   const [csrfToken, setCsrfToken] = useState('');
-  const [datos, setDatos] = useState([]);
-  const [idRegistro, setIdRegistro] = useState(null);
+  const [logoVigente, setLogoVigente] = useState(null);
+  const [historialLogos, setHistorialLogos] = useState([]);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' });
-  const [editMode, setEditMode] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false); // Estado para controlar el diálogo de edición
 
   useEffect(() => {
     obtenerCsrfToken();
-    obtenerDatos();
+    obtenerLogos();
   }, []);
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
-      console.error('Error al obtener el token CSRF:', error);
+      mostrarAlerta('Error al obtener el token CSRF', 'error');
     }
   };
 
-  const obtenerDatos = async () => {
+  const obtenerLogos = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver', { withCredentials: true });
-      setDatos(response.data);
-      if (response.data.length > 0) {
-        setNombre(response.data[0].nombre);
-        setIdRegistro(response.data[0].id);
-      }
+      const responseVigente = await axios.get('http://localhost:4000/api/logo/vigente');
+      const responseHistorial = await axios.get('http://localhost:4000/api/logo/no-vigente');
+      setLogoVigente(responseVigente.data);
+      setHistorialLogos(responseHistorial.data);
     } catch (error) {
-      console.error('Error al obtener los datos:', error);
+      mostrarAlerta('Error al obtener los logos', 'error');
     }
   };
 
@@ -47,157 +43,160 @@ const FormularioLogoNombre = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    if (!logo) {
+      mostrarAlerta('No se ha seleccionado ningún logo', 'error');
+      return;
+    }
+
     const formData = new FormData();
-    formData.append('nombre', nombre);
-    if (logo) formData.append('logo', logo);
+    formData.append('logo', logo);
 
     try {
-      if (editMode) {
-        await axios.put(`https://backendproyectobina2.onrender.com/api/logo-nombre/actualizar/${idRegistro}`, formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'CSRF-Token': csrfToken,
-          },
-          withCredentials: true,
-        });
-        setSnackbar({ open: true, message: 'Actualización exitosa', severity: 'success' });
-      } else {
-        await axios.post('https://backendproyectobina2.onrender.com/api/logo-nombre/registrar', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'CSRF-Token': csrfToken,
-          },
-          withCredentials: true,
-        });
-        setSnackbar({ open: true, message: 'Registro exitoso', severity: 'success' });
-      }
-      obtenerDatos();
-      setNombre('');
+      await axios.post('http://localhost:4000/api/logo/registrar', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'CSRF-Token': csrfToken,
+        },
+        withCredentials: true,
+      });
+
+      mostrarAlerta('Logo registrado con éxito', 'success');
+      obtenerLogos();
       setLogo(null);
-      setEditMode(false);
-      setOpenDialog(false); // Cerrar el diálogo tras la actualización
     } catch (error) {
-      console.error('Error al subir el logo y el nombre:', error);
-      setSnackbar({ open: true, message: 'Error al subir el logo y el nombre', severity: 'error' });
+      mostrarAlerta('Error al subir el logo', 'error');
     }
   };
 
-  const handleEdit = (registro) => {
-    setNombre(registro.nombre);
-    setIdRegistro(registro.id);
-    setEditMode(true);
-    setOpenDialog(true); // Abrir el diálogo de edición
+  const manejarCambioVigente = async (id) => {
+    try {
+      await axios.put('http://localhost:4000/api/logo/activar', { id }, {
+        headers: { 'CSRF-Token': csrfToken },
+        withCredentials: true,
+      });
+
+      mostrarAlerta('Logo establecido como vigente', 'success');
+      obtenerLogos();
+    } catch (error) {
+      mostrarAlerta('Error al cambiar el logo vigente', 'error');
+    }
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-    setEditMode(false);
-    setNombre('');
-    setLogo(null);
+  const mostrarAlerta = (mensaje, tipo) => {
+    setSnackbar({ open: true, message: mensaje, severity: tipo });
   };
+
+  const cerrarAlerta = () => {
+    setSnackbar({ ...snackbar, open: false });
+  };
+
+  const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5';
+  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000';
+  const borderColor = theme.palette.mode === 'dark' ? '#555' : '#ddd';
 
   return (
-    <Box>
-      <Typography variant="h5">
-        {datos.length === 0 ? 'Registrar Nombre y Logo' : 'Actualizar Nombre y Logo'}
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '2rem', borderRadius: '8px', backgroundColor: backgroundColor, color: textColor }}>
+      <Typography variant="h5" sx={{ fontWeight: 'bold', color: textColor }}>
+        Subir Nuevo Logo
       </Typography>
 
-      {/* Mostrar el formulario de registro solo si no hay un registro */}
-      {datos.length === 0 && (
-        <form onSubmit={handleSubmit}>
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                label="Nombre de la Empresa"
-                value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
-                variant="outlined"
-                fullWidth
-              />
-            </Grid>
+      <Button
+        variant="outlined"
+        component="label"
+        startIcon={<CloudUploadIcon />}
+        sx={{ color: textColor, borderColor: borderColor, '&:hover': { borderColor: textColor } }}
+      >
+        {logo ? logo.name : 'Subir Logo (JPEG o PNG)'}
+        <input type="file" accept="image/jpeg, image/png" hidden onChange={handleFileChange} />
+      </Button>
 
-            <Grid item xs={12}>
-              <Button variant="contained" component="label" fullWidth>
-                {logo ? logo.name : 'Subir Logo (JPEG o PNG)'}
-                <input type="file" accept="image/jpeg, image/png" hidden onChange={handleFileChange} />
-              </Button>
-            </Grid>
+      <Button
+        onClick={handleSubmit}
+        variant="contained"
+        color="primary"
+        disabled={!logo}
+        sx={{ backgroundColor: textColor === '#ffffff' ? '#1e88e5' : '#1976d2', color: '#fff' }}
+      >
+        Registrar
+      </Button>
 
-            <Grid item xs={12}>
-              <Button type="submit" variant="contained" color="primary" fullWidth>
-                Registrar
-              </Button>
-            </Grid>
-          </Grid>
-        </form>
-      )}
-
-      {/* Mostrar la tabla con el nombre y el logo si hay datos */}
-      {datos.length > 0 && (
-        <TableContainer component={Paper} sx={{ marginTop: '2rem' }}>
+      <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Logo Vigente</Typography>
+      {logoVigente ? (
+        <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Nombre de la Empresa</TableCell>
-                <TableCell>Logo</TableCell>
-                <TableCell>Acciones</TableCell>
+                <TableCell sx={{ color: textColor }}>Versión</TableCell>
+                <TableCell sx={{ color: textColor }}>Logo</TableCell>
+                <TableCell sx={{ color: textColor }}>Fecha de Creación</TableCell>
+                <TableCell sx={{ color: textColor }}>Vigente</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {datos.map((dato) => (
-                <TableRow key={dato.id}>
-                  <TableCell>{dato.nombre}</TableCell>
+              <TableRow>
+                <TableCell sx={{ color: textColor }}>{logoVigente.version}</TableCell>
+                <TableCell>
+                  <img src={logoVigente.logo} alt="Logo Vigente" style={{ width: '150px', height: 'auto', objectFit: 'contain' }} />
+                </TableCell>
+                <TableCell sx={{ color: textColor }}>{new Date(logoVigente.fecha_creacion).toLocaleDateString()}</TableCell>
+                <TableCell>
+                  <Switch checked={logoVigente.vigente} disabled />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
+      ) : (
+        <Typography sx={{ color: textColor }}>No hay logo vigente.</Typography>
+      )}
+
+      <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Historial de Logos</Typography>
+      {historialLogos.length > 0 ? (
+        <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell sx={{ color: textColor }}>Versión</TableCell>
+                <TableCell sx={{ color: textColor }}>Logo</TableCell>
+                <TableCell sx={{ color: textColor }}>Fecha de Creación</TableCell>
+                <TableCell sx={{ color: textColor }}>Vigente</TableCell>
+                <TableCell sx={{ color: textColor }}>Acciones</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {historialLogos.map((logo, index) => (
+                <TableRow key={index}>
+                  <TableCell sx={{ color: textColor }}>{logo.version}</TableCell>
                   <TableCell>
-                    <img
-                      src={dato.logo}
-                      alt="Logo de la Empresa"
-                      style={{ width: '150px', height: 'auto', objectFit: 'contain' }}
-                    />
+                    <img src={logo.logo} alt="Logo Anterior" style={{ width: '150px', height: 'auto', objectFit: 'contain' }} />
+                  </TableCell>
+                  <TableCell sx={{ color: textColor }}>{new Date(logo.fecha_creacion).toLocaleDateString()}</TableCell>
+                  <TableCell>
+                    <Switch checked={logo.vigente} disabled />
                   </TableCell>
                   <TableCell>
-                    <IconButton color="primary" onClick={() => handleEdit(dato)}>
-                      <EditIcon />
-                    </IconButton>
+                    <Tooltip title="Establecer como Vigente">
+                      <IconButton color="primary" onClick={() => manejarCambioVigente(logo.id)}>
+                        <CheckIcon />
+                      </IconButton>
+                    </Tooltip>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
         </TableContainer>
+      ) : (
+        <Typography sx={{ color: textColor }}>No hay logos anteriores.</Typography>
       )}
 
-      {/* Diálogo para editar nombre y logo */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Editar Nombre y Logo</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Nombre de la Empresa"
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            variant="outlined"
-            fullWidth
-            margin="normal"
-          />
-          <Button variant="contained" component="label" fullWidth>
-            {logo ? logo.name : 'Subir Nuevo Logo (JPEG o PNG)'}
-            <input type="file" accept="image/jpeg, image/png" hidden onChange={handleFileChange} />
-          </Button>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog} color="secondary">
-            Cancelar
-          </Button>
-          <Button onClick={handleSubmit} color="primary" variant="contained">
-            Actualizar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={() => setSnackbar({ ...snackbar, open: false })}>
-        <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+      <Snackbar open={snackbar.open} autoHideDuration={6000} onClose={cerrarAlerta}>
+        <Alert onClose={cerrarAlerta} severity={snackbar.severity} sx={{ width: '100%' }}>
+          {snackbar.message}
+        </Alert>
       </Snackbar>
     </Box>
   );
 };
 
-export default FormularioLogoNombre;
+export default FormularioLogo;

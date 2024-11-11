@@ -45,7 +45,7 @@ function Registro() {
     useEffect(() => {
         const fetchCsrfToken = async () => {
             try {
-                const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+                const response = await fetch('http://localhost:4000/api/get-csrf-token', {
                     credentials: 'include',
                 });
                 const data = await response.json();
@@ -204,32 +204,44 @@ function Registro() {
     const handleNombreChange = (e) => {
         const value = e.target.value;
         setNombre(value);
-        if (/\d/.test(value)) {
-            setNombreError('El nombre no puede contener números');
+    
+        // Permitir solo letras, acentos y espacios
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$/.test(value)) {
+            setNombreError('El nombre solo puede contener letras y espacios');
+        } else if (value.trim() === '') {
+            setNombreError('El nombre es requerido');
         } else {
-            setNombreError(value ? '' : 'El nombre es requerido');
+            setNombreError('');
         }
     };
-
+    
     const handleApellidoPaternoChange = (e) => {
         const value = e.target.value;
         setApellidoPaterno(value);
-        if (/\d/.test(value)) {
-            setApellidoPaternoError('El apellido paterno no puede contener números');
+    
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$/.test(value)) {
+            setApellidoPaternoError('El apellido paterno solo puede contener letras y espacios');
+        } else if (value.trim() === '') {
+            setApellidoPaternoError('El apellido paterno es requerido');
         } else {
-            setApellidoPaternoError(value ? '' : 'El apellido paterno es requerido');
+            setApellidoPaternoError('');
         }
     };
-
+    
     const handleApellidoMaternoChange = (e) => {
         const value = e.target.value;
         setApellidoMaterno(value);
-        if (/\d/.test(value)) {
-            setApellidoMaternoError('El apellido materno no puede contener números');
+    
+        if (!/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]*$/.test(value)) {
+            setApellidoMaternoError('El apellido materno solo puede contener letras y espacios');
+        } else if (value.trim() === '') {
+            setApellidoMaternoError('El apellido materno es requerido');
         } else {
             setApellidoMaternoError('');
         }
     };
+    
+    
 
     const handleTelefonoChange = (e) => {
         const value = e.target.value;
@@ -239,9 +251,31 @@ function Registro() {
 
     const handleEdadChange = (e) => {
         const value = e.target.value;
+    
+        // Permite que el campo esté vacío mientras el usuario escribe
         setEdad(value);
-        setEdadError(value > 0 ? '' : 'La edad debe ser un número mayor a 0');
+    
+        // Solo aplica validaciones si hay un valor
+        if (value === '') {
+            setEdadError('');
+            return;
+        }
+    
+        // Convierte el valor a un número solo después de comprobar que no está vacío
+        const numericValue = parseInt(value, 10);
+    
+        if (isNaN(numericValue)) {
+            setEdadError('La edad debe ser un número válido');
+        } else if (numericValue < 18) {
+            setEdadError('Debes ser mayor de edad (18 años o más)');
+        } else if (numericValue > 100) {
+            setEdadError('La edad debe ser menor o igual a 100');
+        } else {
+            setEdadError('');
+        }
     };
+    
+    
 
     // Crear el tema basado en el estado themeMode
     const theme = createTheme({

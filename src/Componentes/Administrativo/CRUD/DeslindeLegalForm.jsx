@@ -1,39 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Switch, IconButton, Tooltip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, useTheme } from '@mui/material';
-import { CloudUpload as CloudUploadIcon, Edit as EditIcon, CheckCircleOutline as CheckIcon, Delete as DeleteIcon } from '@mui/icons-material'; // Importar íconos
+import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Switch, IconButton, Tooltip, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert, useTheme } from '@mui/material';
+import { CloudUpload as CloudUploadIcon, Edit as EditIcon, CheckCircleOutline as CheckIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import axios from 'axios';
-import dayjs from 'dayjs'; // Importar dayjs para manejar fechas
+import dayjs from 'dayjs';
 
 const DeslindeLegalForm = () => {
-  const theme = useTheme(); // Hook para obtener el tema actual
-  const [file, setFile] = useState(null); // Estado para almacenar el archivo seleccionado
-  const [versiones, setVersiones] = useState([]); // Estado para almacenar las versiones de deslinde
-  const [versionActual, setVersionActual] = useState(null); // Estado para manejar el deslinde vigente
+  const theme = useTheme();
+  const [file, setFile] = useState(null);
+  const [versiones, setVersiones] = useState([]);
+  const [versionActual, setVersionActual] = useState(null);
   const [csrfToken, setCsrfToken] = useState('');
-  const [editando, setEditando] = useState(false); // Estado para controlar si estamos en modo edición
-  const [dialogoAbierto, setDialogoAbierto] = useState(false); // Controla si el diálogo de edición está abierto
-  const [contenidoEditado, setContenidoEditado] = useState(''); // Almacenar el contenido editado
+  const [editando, setEditando] = useState(false);
+  const [dialogoAbierto, setDialogoAbierto] = useState(false);
+  const [contenidoEditado, setContenidoEditado] = useState('');
 
-  // Obtener el token CSRF cuando se monta el componente
+  const [alerta, setAlerta] = useState({ open: false, mensaje: '', tipo: 'success' }); // Estado para manejar alertas
+
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
-      console.error('Error al obtener el token CSRF:', error);
+      mostrarAlerta('Error al obtener el token CSRF', 'error');
     }
   };
 
-  // Obtener las versiones del deslinde y el deslinde vigente
   const obtenerDeslindes = async () => {
     try {
-      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/deslinde/vigente');
-      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/deslinde/todas');
+      const responseVigente = await axios.get('http://localhost:4000/api/deslinde/vigente');
+      const responseHistorial = await axios.get('http://localhost:4000/api/deslinde/todas');
 
-      setVersionActual(responseVigente.data); // Deslinde vigente
-      setVersiones(responseHistorial.data.filter(deslinde => !deslinde.vigente)); // Filtrar solo los que no están vigentes
+      setVersionActual(responseVigente.data);
+      setVersiones(responseHistorial.data.filter(deslinde => !deslinde.vigente));
     } catch (error) {
-      console.error('Error al obtener los deslindes:', error);
+      mostrarAlerta('Error al obtener los deslindes', 'error');
     }
   };
 
@@ -42,30 +42,27 @@ const DeslindeLegalForm = () => {
     obtenerDeslindes();
   }, []);
 
-  // Manejar el cambio de archivo
   const handleFileChange = (event) => {
     const archivo = event.target.files[0];
-    setFile(archivo); // Guardar el archivo seleccionado en el estado
+    setFile(archivo);
   };
 
-  // Enviar el archivo al backend
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     if (!file && !editando) {
-      console.log("No se ha seleccionado ningún archivo");
+      mostrarAlerta("No se ha seleccionado ningún archivo", 'error');
       return;
     }
 
     if (editando) {
-      // Guardar la edición como nueva versión
       await guardarEdicion();
     } else {
       const formData = new FormData();
-      formData.append('file', file); // Asegurarse de que el archivo se incluya en los datos del formulario
+      formData.append('file', file);
 
       try {
-        const response = await axios.post('https://backendproyectobina2.onrender.com/api/deslinde/crear', formData, {
+        await axios.post('http://localhost:4000/api/deslinde/crear', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
             'CSRF-Token': csrfToken,
@@ -73,69 +70,77 @@ const DeslindeLegalForm = () => {
           withCredentials: true,
         });
 
-        console.log("Respuesta del servidor:", response);
-        obtenerDeslindes(); // Refrescar los deslindes después de subir el archivo
+        mostrarAlerta('Archivo subido con éxito', 'success');
+        obtenerDeslindes();
       } catch (error) {
-        console.error('Error al subir el archivo:', error);
+        mostrarAlerta('Error al subir el archivo', 'error');
       }
     }
 
-    setEditando(false); // Finalizar el modo edición
+    setEditando(false);
   };
 
-  // Función para cambiar un deslinde del historial a "vigente"
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/deslinde/activar', { id }, {
+      await axios.put('http://localhost:4000/api/deslinde/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
-      obtenerDeslindes(); // Refrescar deslindes después del cambio
+
+      mostrarAlerta('Deslinde establecido como vigente', 'success');
+      obtenerDeslindes();
     } catch (error) {
-      console.error('Error al cambiar el deslinde vigente:', error);
+      mostrarAlerta('Error al cambiar el deslinde vigente', 'error');
     }
   };
 
-  // Abrir el diálogo de edición
-const abrirEdicion = () => {
-  setContenidoEditado(versionActual.contenido); // Cargar el contenido actual para editar
-  setDialogoAbierto(true);
-  setEditando(true); // Cambiar a modo edición
-};
+  const abrirEdicion = () => {
+    setContenidoEditado(versionActual.contenido);
+    setDialogoAbierto(true);
+    setEditando(true);
+  };
 
- // Función para manejar el guardado de la edición
-const guardarEdicion = async () => {
-  try {
-    await axios.post('https://backendproyectobina2.onrender.com/api/deslinde/editar', {
-      id: versionActual.id,
-      titulo: versionActual.titulo, // Mantener el título original
-      contenido: contenidoEditado,  // El contenido editado será el nuevo
-    }, {
-      headers: { 'CSRF-Token': csrfToken },
-      withCredentials: true,
-    });
+  const guardarEdicion = async () => {
+    try {
+      await axios.post('http://localhost:4000/api/deslinde/editar', {
+        id: versionActual.id,
+        titulo: versionActual.titulo,
+        contenido: contenidoEditado,
+      }, {
+        headers: { 'CSRF-Token': csrfToken },
+        withCredentials: true,
+      });
 
-    setDialogoAbierto(false); // Cerrar el diálogo
-    obtenerDeslindes(); // Refrescar los deslindes
-  } catch (error) {
-    console.error('Error al guardar el deslinde editado:', error);
-  }
-};
+      mostrarAlerta('Edición guardada como nueva versión', 'success');
+      setDialogoAbierto(false);
+      obtenerDeslindes();
+    } catch (error) {
+      mostrarAlerta('Error al guardar el deslinde editado', 'error');
+    }
+  };
 
-  // Función para eliminar lógicamente un deslinde
   const eliminarDeslinde = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/deslinde/eliminar', { id }, {
+      await axios.put('http://localhost:4000/api/deslinde/eliminar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
-      obtenerDeslindes(); // Refrescar los deslindes después de eliminar
+
+      mostrarAlerta('Deslinde eliminado con éxito', 'success');
+      obtenerDeslindes();
     } catch (error) {
-      console.error('Error al eliminar el deslinde:', error);
+      mostrarAlerta('Error al eliminar el deslinde', 'error');
     }
   };
 
-  // Colores condicionales según el tema
+  const mostrarAlerta = (mensaje, tipo) => {
+    setAlerta({ open: true, mensaje, tipo });
+  };
+
+  const cerrarAlerta = () => {
+    setAlerta({ ...alerta, open: false });
+  };
+
   const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5';
   const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000';
   const borderColor = theme.palette.mode === 'dark' ? '#555' : '#ddd';
@@ -146,7 +151,6 @@ const guardarEdicion = async () => {
         {editando ? 'Editar Deslinde Legal' : 'Subir Nuevo Deslinde Legal'}
       </Typography>
 
-      {/* Campo para seleccionar el archivo */}
       <Button
         variant="outlined"
         component="label"
@@ -157,7 +161,6 @@ const guardarEdicion = async () => {
         <input type="file" accept=".pdf,.doc,.docx,.txt" hidden onChange={handleFileChange} />
       </Button>
 
-      {/* Botón para enviar */}
       <Button
         onClick={handleSubmit}
         variant="contained"
@@ -168,7 +171,6 @@ const guardarEdicion = async () => {
         {editando ? 'Guardar Cambios' : 'Subir'}
       </Button>
 
-      {/* Tabla para el Deslinde Vigente */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Deslinde Legal Vigente</Typography>
       {versionActual ? (
         <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
@@ -187,7 +189,7 @@ const guardarEdicion = async () => {
               <TableRow>
                 <TableCell sx={{ color: textColor }}>{versionActual.version}</TableCell>
                 <TableCell sx={{ color: textColor }}>{versionActual.titulo}</TableCell>
-                <TableCell sx={{ color: textColor }}>{dayjs(versionActual.fecha_creacion).format('DD/MM/YYYY')}</TableCell> {/* Mostrar la fecha formateada */}
+                <TableCell sx={{ color: textColor }}>{dayjs(versionActual.fecha_creacion).format('DD/MM/YYYY')}</TableCell>
                 <TableCell>
                   <Switch checked={versionActual.vigente} disabled />
                 </TableCell>
@@ -209,7 +211,6 @@ const guardarEdicion = async () => {
         <Typography sx={{ color: textColor }}>No hay deslinde vigente.</Typography>
       )}
 
-     {/* Historial de Deslindes */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Historial de Deslindes Legales</Typography>
       {versiones.length > 0 ? (
         <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
@@ -265,7 +266,6 @@ const guardarEdicion = async () => {
         <Typography sx={{ color: textColor }}>No hay deslindes anteriores.</Typography>
       )}
 
-      {/* Diálogo de edición */}
       <Dialog open={dialogoAbierto} onClose={() => setDialogoAbierto(false)}>
         <DialogTitle sx={{ color: textColor }}>Editar Deslinde Legal Vigente</DialogTitle>
         <DialogContent sx={{ backgroundColor: backgroundColor, color: textColor }}>
@@ -286,6 +286,12 @@ const guardarEdicion = async () => {
           <Button onClick={guardarEdicion} variant="contained" color="primary">Guardar como Nueva Versión</Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={alerta.open} autoHideDuration={3000} onClose={cerrarAlerta}>
+        <Alert onClose={cerrarAlerta} severity={alerta.tipo} sx={{ width: '100%' }}>
+          {alerta.mensaje}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

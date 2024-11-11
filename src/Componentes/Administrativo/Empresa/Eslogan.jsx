@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, useTheme } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material'; // Icono para editar
+import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Snackbar, Alert, useTheme } from '@mui/material';
+import { Edit as EditIcon } from '@mui/icons-material';
 import axios from 'axios';
 
 const FormularioEslogan = () => {
-  const theme = useTheme(); // Hook para obtener el tema actual
-  const [eslogan, setEslogan] = useState(''); // Estado para almacenar el eslogan actual
-  const [nuevoEslogan, setNuevoEslogan] = useState(''); // Estado para manejar el nuevo eslogan
-  const [csrfToken, setCsrfToken] = useState(''); // Estado para almacenar el token CSRF
-  const [dialogoAbierto, setDialogoAbierto] = useState(false); // Estado para abrir/cerrar el diálogo de edición
-  const [errors, setErrors] = useState(''); // Estado para manejar errores
-  const maxCaracteres = 100; // Límite de caracteres para el eslogan
+  const theme = useTheme();
+  const [eslogan, setEslogan] = useState('');
+  const [nuevoEslogan, setNuevoEslogan] = useState('');
+  const [csrfToken, setCsrfToken] = useState('');
+  const [dialogoAbierto, setDialogoAbierto] = useState(false);
+  const [errors, setErrors] = useState('');
+  const [alerta, setAlerta] = useState({ open: false, mensaje: '', tipo: 'success' });
+  const maxCaracteres = 100;
 
-  // Obtener el token CSRF cuando se monta el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
-      console.error('Error al obtener el token CSRF:', error);
+      mostrarAlerta('Error al obtener el token CSRF', 'error');
     }
   };
 
-  // Obtener el eslogan actual
   const obtenerEslogan = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/eslogan', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/eslogan', { withCredentials: true });
       setEslogan(response.data.eslogan);
     } catch (error) {
-      console.error('Error al obtener el eslogan:', error);
+      mostrarAlerta('Error al obtener el eslogan', 'error');
     }
   };
 
@@ -37,7 +36,6 @@ const FormularioEslogan = () => {
     obtenerEslogan();
   }, []);
 
-  // Validar el formulario
   const validarFormulario = () => {
     if (!nuevoEslogan.trim()) {
       setErrors('El eslogan no puede estar vacío.');
@@ -51,42 +49,47 @@ const FormularioEslogan = () => {
     return true;
   };
 
-  // Manejar la creación o actualización del eslogan
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validarFormulario()) return;
-    
+
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/eslogan/actualizar', { eslogan: nuevoEslogan }, {
+      await axios.post('http://localhost:4000/api/eslogan/actualizar', { eslogan: nuevoEslogan }, {
         headers: {
           'CSRF-Token': csrfToken,
         },
         withCredentials: true,
       });
-      obtenerEslogan(); // Refrescar el eslogan después de actualizar/crear
-      setNuevoEslogan(''); // Limpiar el campo de texto
-      setDialogoAbierto(false); // Cerrar el diálogo
+      obtenerEslogan();
+      mostrarAlerta('Eslogan actualizado con éxito', 'success');
+      setNuevoEslogan('');
+      setDialogoAbierto(false);
     } catch (error) {
-      console.error('Error al actualizar el eslogan:', error);
+      mostrarAlerta('Error al actualizar el eslogan', 'error');
     }
   };
 
-  // Abrir el diálogo de edición o creación
   const abrirDialogo = () => {
-    setNuevoEslogan(eslogan || ''); // Si hay un eslogan, lo pre-carga, si no, queda vacío
-    setDialogoAbierto(true); // Abrir el diálogo
+    setNuevoEslogan(eslogan || '');
+    setDialogoAbierto(true);
   };
 
-  // Cerrar el diálogo
   const cerrarDialogo = () => {
     setDialogoAbierto(false);
     setNuevoEslogan('');
     setErrors('');
   };
 
-  // Colores condicionales según el tema (modo claro/oscuro)
-  const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5'; // Fondo oscuro o claro
-  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000'; // Color de texto claro u oscuro
+  const mostrarAlerta = (mensaje, tipo) => {
+    setAlerta({ open: true, mensaje, tipo });
+  };
+
+  const cerrarAlerta = () => {
+    setAlerta({ ...alerta, open: false });
+  };
+
+  const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5';
+  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '2rem', borderRadius: '8px', backgroundColor: backgroundColor, color: textColor }}>
@@ -94,7 +97,6 @@ const FormularioEslogan = () => {
         {eslogan ? 'Eslogan de la Empresa' : 'Registrar Eslogan'}
       </Typography>
 
-      {/* Tabla para mostrar el eslogan actual */}
       <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
         <Table>
           <TableHead>
@@ -109,7 +111,6 @@ const FormularioEslogan = () => {
                 {eslogan || 'No hay eslogan registrado'}
               </TableCell>
               <TableCell>
-                {/* Mostrar botón de "Registrar" si no hay eslogan, o "Editar" si ya existe */}
                 <IconButton color="primary" onClick={abrirDialogo}>
                   <EditIcon />
                 </IconButton>
@@ -119,7 +120,6 @@ const FormularioEslogan = () => {
         </Table>
       </TableContainer>
 
-      {/* Diálogo para registrar o actualizar el eslogan */}
       <Dialog open={dialogoAbierto} onClose={cerrarDialogo}>
         <DialogTitle sx={{ color: textColor }}>
           {eslogan ? 'Actualizar Eslogan' : 'Registrar Eslogan'}
@@ -134,7 +134,7 @@ const FormularioEslogan = () => {
             variant="outlined"
             error={!!errors}
             helperText={errors}
-            inputProps={{ maxLength: maxCaracteres }} // Límite de caracteres
+            inputProps={{ maxLength: maxCaracteres }}
             sx={{ color: textColor, input: { color: textColor }, label: { color: textColor } }}
           />
           <Typography variant="caption" sx={{ color: textColor }}>
@@ -148,6 +148,12 @@ const FormularioEslogan = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={alerta.open} autoHideDuration={3000} onClose={cerrarAlerta}>
+        <Alert onClose={cerrarAlerta} severity={alerta.tipo} sx={{ width: '100%' }}>
+          {alerta.mensaje}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

@@ -1,34 +1,33 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, useTheme } from '@mui/material';
+import { Box, Button, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, IconButton, TextField, Dialog, DialogTitle, DialogContent, DialogActions, Tooltip, Snackbar, Alert, useTheme } from '@mui/material';
 import { Edit as EditIcon } from '@mui/icons-material';
 import axios from 'axios';
 
 const FormularioRedesSociales = () => {
-  const theme = useTheme(); // Hook para obtener el tema actual
-  const [redesSociales, setRedesSociales] = useState([]); // Estado para almacenar las redes sociales
-  const [csrfToken, setCsrfToken] = useState(''); // Estado para almacenar el token CSRF
-  const [dialogoAbierto, setDialogoAbierto] = useState(false); // Controla si el diálogo de edición está abierto
-  const [redSocialEditada, setRedSocialEditada] = useState({ id: '', nombre: '', url: '' }); // Estado para manejar la red social a editar
-  const [nuevaRedSocial, setNuevaRedSocial] = useState({ nombre: '', url: '' }); // Estado para manejar nuevas redes sociales
-  const [errors, setErrors] = useState({}); // Estado para almacenar errores de validación
+  const theme = useTheme();
+  const [redesSociales, setRedesSociales] = useState([]);
+  const [csrfToken, setCsrfToken] = useState('');
+  const [dialogoAbierto, setDialogoAbierto] = useState(false);
+  const [redSocialEditada, setRedSocialEditada] = useState({ id: '', nombre: '', url: '' });
+  const [nuevaRedSocial, setNuevaRedSocial] = useState({ nombre: '', url: '' });
+  const [errors, setErrors] = useState({});
+  const [alerta, setAlerta] = useState({ open: false, mensaje: '', tipo: 'success' });
 
-  // Obtener el token CSRF cuando se monta el componente
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
-      console.error('Error al obtener el token CSRF:', error);
+      mostrarAlerta('Error al obtener el token CSRF', 'error');
     }
   };
 
-  // Obtener las redes sociales existentes
   const obtenerRedesSociales = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/redSocial', { withCredentials: true });
+      const response = await axios.get('http://localhost:4000/api/redSocial', { withCredentials: true });
       setRedesSociales(response.data);
     } catch (error) {
-      console.error('Error al obtener las redes sociales:', error);
+      mostrarAlerta('Error al obtener las redes sociales', 'error');
     }
   };
 
@@ -37,23 +36,20 @@ const FormularioRedesSociales = () => {
     obtenerRedesSociales();
   }, []);
 
-  // Validar URL
   const esUrlValida = (url) => {
-    const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocolo
-      '((([a-zA-Z0-9$_.+!*\'(),;?&=-]|%[0-9a-fA-F]{2})+:)?([a-zA-Z0-9$_.+!*\'(),;?&=-]|%[0-9a-fA-F]{2})+@)?' + // nombre usuario:contraseña@
-      '(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)*' + // subdominios
-      '([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]|[a-zA-Z0-9])\\.?([a-zA-Z]{2,6})(:[0-9]{1,5})?' + // dominio y puerto
+    const pattern = new RegExp('^(https?:\\/\\/)?'+
+      '((([a-zA-Z0-9$_.+!*\'(),;?&=-]|%[0-9a-fA-F]{2})+:)?([a-zA-Z0-9$_.+!*\'(),;?&=-]|%[0-9a-fA-F]{2})+@)?' +
+      '(([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)*' +
+      '([a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]|[a-zA-Z0-9])\\.?([a-zA-Z]{2,6})(:[0-9]{1,5})?' +
       '(\\/[^\\s]*)?$');
     return pattern.test(url);
   };
 
-  // Manejar el cambio en los campos de texto
   const handleInputChange = (event) => {
     const { name, value } = event.target;
     setNuevaRedSocial({ ...nuevaRedSocial, [name]: value });
   };
 
-  // Validar los campos del formulario
   const validarFormulario = () => {
     const newErrors = {};
     if (!nuevaRedSocial.nombre) {
@@ -68,31 +64,29 @@ const FormularioRedesSociales = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Enviar una nueva red social al backend
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!validarFormulario()) return; // Validar antes de enviar
+    if (!validarFormulario()) return;
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/redSocial/crear', nuevaRedSocial, {
+      await axios.post('http://localhost:4000/api/redSocial/crear', nuevaRedSocial, {
         headers: {
           'CSRF-Token': csrfToken,
         },
         withCredentials: true,
       });
-      obtenerRedesSociales(); // Refrescar las redes sociales
-      setNuevaRedSocial({ nombre: '', url: '' }); // Limpiar el formulario
+      mostrarAlerta('Red social agregada con éxito', 'success');
+      obtenerRedesSociales();
+      setNuevaRedSocial({ nombre: '', url: '' });
     } catch (error) {
-      console.error('Error al agregar la red social:', error);
+      mostrarAlerta('Error al agregar la red social', 'error');
     }
   };
 
-  // Abrir el diálogo de edición
   const abrirEdicion = (redSocial) => {
-    setRedSocialEditada(redSocial); // Cargar los datos de la red social a editar
+    setRedSocialEditada(redSocial);
     setDialogoAbierto(true);
   };
 
-  // Validar los campos de edición
   const validarFormularioEdicion = () => {
     const newErrors = {};
     if (!redSocialEditada.nombre) {
@@ -107,30 +101,36 @@ const FormularioRedesSociales = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Guardar los cambios de la red social editada
   const guardarEdicion = async () => {
-    if (!validarFormularioEdicion()) return; // Validar antes de guardar
+    if (!validarFormularioEdicion()) return;
     try {
-      await axios.put(`https://backendproyectobina2.onrender.com/api/redSocial/editar/${redSocialEditada.id}`, redSocialEditada, {
+      await axios.put(`http://localhost:4000/api/redSocial/editar/${redSocialEditada.id}`, redSocialEditada, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
-      setDialogoAbierto(false); // Cerrar el diálogo
-      obtenerRedesSociales(); // Refrescar las redes sociales
+      mostrarAlerta('Red social editada con éxito', 'success');
+      setDialogoAbierto(false);
+      obtenerRedesSociales();
     } catch (error) {
-      console.error('Error al guardar los cambios:', error);
+      mostrarAlerta('Error al guardar los cambios', 'error');
     }
   };
 
-  // Manejar el cambio en los campos del formulario de edición
   const handleEditChange = (event) => {
     const { name, value } = event.target;
     setRedSocialEditada({ ...redSocialEditada, [name]: value });
   };
 
-  // Colores condicionales según el tema (modo claro/oscuro)
-  const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5'; // Fondo oscuro o claro
-  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000'; // Color de texto claro u oscuro
+  const mostrarAlerta = (mensaje, tipo) => {
+    setAlerta({ open: true, mensaje, tipo });
+  };
+
+  const cerrarAlerta = () => {
+    setAlerta({ ...alerta, open: false });
+  };
+
+  const backgroundColor = theme.palette.mode === 'dark' ? '#333' : '#f5f5f5';
+  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000';
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, padding: '2rem', borderRadius: '8px', backgroundColor: backgroundColor, color: textColor }}>
@@ -138,7 +138,6 @@ const FormularioRedesSociales = () => {
         Gestión de Redes Sociales
       </Typography>
 
-      {/* Formulario para agregar una nueva red social */}
       <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         <TextField
           label="Nombre de la Red Social"
@@ -165,7 +164,6 @@ const FormularioRedesSociales = () => {
         </Button>
       </Box>
 
-      {/* Tabla para mostrar las redes sociales */}
       <Typography variant="h6" sx={{ fontWeight: 'bold', marginTop: '2rem', color: textColor }}>Redes Sociales</Typography>
       <TableContainer component={Paper} sx={{ backgroundColor: backgroundColor, color: textColor }}>
         <Table>
@@ -194,7 +192,6 @@ const FormularioRedesSociales = () => {
         </Table>
       </TableContainer>
 
-      {/* Diálogo de edición */}
       <Dialog open={dialogoAbierto} onClose={() => setDialogoAbierto(false)}>
         <DialogTitle sx={{ color: textColor }}>Editar Red Social</DialogTitle>
         <DialogContent sx={{ backgroundColor: backgroundColor, color: textColor }}>
@@ -229,6 +226,12 @@ const FormularioRedesSociales = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <Snackbar open={alerta.open} autoHideDuration={3000} onClose={cerrarAlerta}>
+        <Alert onClose={cerrarAlerta} severity={alerta.tipo} sx={{ width: '100%' }}>
+          {alerta.mensaje}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

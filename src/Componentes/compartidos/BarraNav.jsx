@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, useTheme, Box } from '@mui/material';
+import {
+  AppBar, Toolbar, Typography, Button, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText, useTheme, Box
+} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import LoginIcon from '@mui/icons-material/Login';
@@ -9,17 +11,20 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 
 const BarraNav = ({ toggleTheme, themeMode }) => {
-  const theme = useTheme(); // Obtenemos el tema actual
+  const theme = useTheme();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [logoNombre, setLogoNombre] = useState({ nombre: '', logo: '' });
 
   // Función para obtener el nombre y logo desde la API
   const fetchLogoNombre = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo-nombre/ver'); // API para obtener nombre y logo
-      if (response.data.length > 0) {
-        setLogoNombre(response.data[0]); // Asignar el primer registro
-      }
+      const [logoResponse, nombreResponse] = await Promise.all([
+        fetch('http://localhost:4000/api/logo/vigente'),
+        fetch('http://localhost:4000/api/nombre/vigente')
+      ]);
+      const logoData = await logoResponse.json();
+      const nombreData = await nombreResponse.json();
+      setLogoNombre({ nombre: nombreData.nombre, logo: logoData.logo });
     } catch (error) {
       console.error('Error al obtener el nombre y logo:', error);
     }
@@ -28,6 +33,21 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
   useEffect(() => {
     fetchLogoNombre();
   }, []);
+
+  useEffect(() => {
+    if (logoNombre.logo) {
+      const favicon = document.querySelector("link[rel='icon']") || document.createElement('link');
+      favicon.rel = 'icon';
+      favicon.href = `${logoNombre.logo}?v=${new Date().getTime()}`;
+      document.head.appendChild(favicon);
+    }
+  }, [logoNombre.logo]);
+
+  useEffect(() => {
+    if (logoNombre.nombre) {
+      document.title = logoNombre.nombre;
+    }
+  }, [logoNombre.nombre]);
 
   // Abrir y cerrar el Drawer
   const toggleDrawer = (open) => (event) => {
@@ -38,17 +58,17 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
   };
 
   // Colores personalizados según el tema
-  const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c'; 
+  const backgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#01349c';
   const textColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#ffffff';
-  const drawerBackgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#fff'; // Fondo del Drawer
-  const drawerTextColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#000'; // Texto del Drawer
+  const drawerBackgroundColor = theme.palette.mode === 'dark' ? '#0A0E27' : '#fff';
+  const drawerTextColor = theme.palette.mode === 'dark' ? '#00BFFF' : '#000';
 
   const drawerMenuItems = (
     <Box
-      sx={{ width: 250, backgroundColor: drawerBackgroundColor, height: '100%' }} // Ajusta el fondo del Drawer
+      sx={{ width: 250, backgroundColor: drawerBackgroundColor, height: '100%' }}
       role="presentation"
-      onClick={toggleDrawer(false)}
-      onKeyDown={toggleDrawer(false)}
+      onClick={(event) => event.stopPropagation()} // Evitar que el cambio de tema cierre el Drawer
+      onKeyDown={(event) => event.stopPropagation()}
     >
       <List>
         <ListItem component={Link} to="/">
@@ -69,7 +89,7 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
           </ListItemIcon>
           <ListItemText primary="Registrarse" sx={{ color: drawerTextColor }} />
         </ListItem>
-        <ListItem button onClick={toggleTheme}>
+        <ListItem button onClick={(event) => { event.stopPropagation(); toggleTheme(); }}>
           <ListItemIcon>
             <Brightness4Icon sx={{ color: drawerTextColor }} />
           </ListItemIcon>
@@ -82,15 +102,14 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
   return (
     <AppBar position="static" sx={{ backgroundColor: backgroundColor, boxShadow: '0px 4px 10px rgba(0, 191, 255, 0.5)' }}>
       <Toolbar sx={{ paddingY: 2 }}>
-        {/* Logo y nombre de la empresa */}
         <Box sx={{ flexGrow: 1, display: 'flex', alignItems: 'center' }}>
-        {logoNombre.logo && (
-          <img
-            src={logoNombre.logo}  // Usa la URL completa de Cloudinary
-            alt="Logo Empresa"
-            style={{ width: '50px', marginRight: '15px' }}
-          />
-        )}
+          {logoNombre.logo && (
+            <img
+              src={logoNombre.logo}
+              alt="Logo Empresa"
+              style={{ width: '50px', marginRight: '15px' }}
+            />
+          )}
           <Typography 
             variant="h5" 
             sx={{ fontWeight: 'bold', fontSize: '1.5rem', color: textColor }}
@@ -98,8 +117,7 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
             {logoNombre.nombre || 'Consultorio Dental'}
           </Typography>
         </Box>
-        
-        {/* Botones de navegación para pantallas grandes */}
+
         <Button 
           color="inherit" 
           component={Link} 
@@ -128,31 +146,28 @@ const BarraNav = ({ toggleTheme, themeMode }) => {
           Registrarse
         </Button>
 
-        {/* Botón para alternar el tema */}
         <IconButton
           color="inherit"
           aria-label="toggle theme"
-          onClick={toggleTheme}
+          onClick={(event) => { event.stopPropagation(); toggleTheme(); }}
           sx={{ color: textColor, marginLeft: '1rem' }}
         >
           <Brightness4Icon sx={{ fontSize: '1.8rem' }} />
         </IconButton>
 
-        {/* Menú de hamburguesa para pantallas pequeñas */}
         <IconButton
           edge="start"
           color="inherit"
           aria-label="menu"
           sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '2rem', color: textColor }}
-          onClick={toggleDrawer(true)} // Abre el Drawer al hacer clic
+          onClick={toggleDrawer(true)}
         >
           <MenuIcon sx={{ fontSize: '2rem', color: textColor }} />
         </IconButton>
       </Toolbar>
 
-      {/* Drawer que se desliza desde la derecha */}
       <Drawer
-        anchor="right" // Desliza desde la derecha
+        anchor="right"
         open={drawerOpen}
         onClose={toggleDrawer(false)}
       >
