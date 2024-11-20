@@ -7,23 +7,47 @@ export const validarPassword = (password) => {
 };
 
 export const validarStep1 = (nombre, apellidoPaterno, apellidoMaterno, telefono, edad, sexo, mostrarAlerta) => {
-  if (!nombre || !apellidoPaterno || !apellidoMaterno || !telefono || !edad || !sexo) {
-      mostrarAlerta('Por favor, completa todos los campos del paso actual');
-      return false;
-  }
+    // Validación del nombre
+    if (!nombre || nombre.trim() === '.' || !/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(nombre)) {
+        mostrarAlerta('El nombre solo puede contener letras y espacios, y no puede ser un punto.');
+        return false;
+    }
 
-  if (!/^\d{10}$/.test(telefono)) {
-      mostrarAlerta('El teléfono debe ser numérico y contener exactamente 10 dígitos');
-      return false;
-  }
+    // Validación del apellido paterno
+    if (!apellidoPaterno || apellidoPaterno.trim() === '.' || !/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(apellidoPaterno)) {
+        mostrarAlerta('El apellido paterno solo puede contener letras y espacios, y no puede ser un punto.');
+        return false;
+    }
 
-  if (isNaN(edad) || edad <= 0) {
-      mostrarAlerta('La edad debe ser un número mayor a 0');
-      return false;
-  }
+    // Validación del apellido materno
+    if (!apellidoMaterno || apellidoMaterno.trim() === '.' || !/^[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ\s]+$/.test(apellidoMaterno)) {
+        mostrarAlerta('El apellido materno solo puede contener letras y espacios, y no puede ser un punto.');
+        return false;
+    }
 
-  return true;
+    // Validación del teléfono
+    if (!telefono || !/^\d{10}$/.test(telefono)) {
+        mostrarAlerta('El teléfono debe ser numérico y contener exactamente 10 dígitos.');
+        return false;
+    }
+
+    // Validación de la edad
+    const numericEdad = parseInt(edad, 10);
+    if (!edad || isNaN(numericEdad) || numericEdad < 18 || numericEdad > 100) {
+        mostrarAlerta('La edad debe ser un número entre 18 y 100.');
+        return false;
+    }
+
+    // Validación del sexo
+    if (!sexo) {
+        mostrarAlerta('Selecciona un género válido.');
+        return false;
+    }
+
+    // Si todas las validaciones pasan
+    return true;
 };
+
 
 // Función para manejar el registro
 export const handleSubmit = async (
@@ -69,7 +93,7 @@ export const handleSubmit = async (
       const controller = new AbortController(); // Controlador para manejar timeout
       const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 10 segundos
 
-      const response = await fetch('http://localhost:4000/api/registro', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/registro', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',
@@ -125,7 +149,7 @@ export const handleSubmitVerification = async (
       const controller = new AbortController(); // Controlador para manejar timeout
       const timeoutId = setTimeout(() => controller.abort(), 10000); // Timeout de 10 segundos
 
-      const response = await fetch('http://localhost:4000/api/verificar-codigo', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-codigo', {
           method: 'POST',
           headers: {
               'Content-Type': 'application/json',

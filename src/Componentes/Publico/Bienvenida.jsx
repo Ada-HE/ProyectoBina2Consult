@@ -13,7 +13,7 @@ const Bienvenida = () => {
     // Solicitud para obtener el logo y nombre usando el nuevo endpoint
     const fetchLogoNombre = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/logo/vigente');
+        const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo/vigente');
         if (response.data) {
           setLogoNombre(response.data); // Asigna los datos obtenidos
         }
@@ -25,7 +25,7 @@ const Bienvenida = () => {
     // Solicitud para obtener el eslogan
     const fetchEslogan = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/eslogan');
+        const response = await axios.get('https://backendproyectobina2.onrender.com/api/eslogan');
         setEslogan(response.data.eslogan);
       } catch (error) {
         console.error('Error al obtener el eslogan:', error);

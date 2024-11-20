@@ -79,7 +79,7 @@ function App() {
 
     const verificarAutenticacion = async () => {
       try {
-        const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-autenticacion', {
           method: 'GET',
           credentials: 'include',
         });

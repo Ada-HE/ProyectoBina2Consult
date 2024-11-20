@@ -17,7 +17,7 @@ const PieDePagina = () => {
   // Función para obtener redes sociales desde el backend
   const fetchSocialMedia = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/redSocial'); // Tu endpoint de redes sociales
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/redSocial'); // Tu endpoint de redes sociales
       setSocialMedia(response.data);
     } catch (error) {
       console.error('Error al obtener redes sociales:', error);
@@ -27,7 +27,7 @@ const PieDePagina = () => {
   // Función para obtener los datos de contacto desde el backend
   const fetchContactInfo = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/contacto/ver'); // Tu endpoint de contacto
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/contacto/ver'); // Tu endpoint de contacto
       if (response.data.length > 0) {
         setContactInfo(response.data[0]); // Asegurarse de acceder al primer registro
       }

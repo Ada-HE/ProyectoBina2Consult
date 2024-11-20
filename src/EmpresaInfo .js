@@ -9,8 +9,8 @@ const EmpresaInfo = () => {
     const obtenerDatosEmpresa = async () => {
       try {
         const [logoResponse, nombreResponse] = await Promise.all([
-          fetch('http://localhost:4000/api/logo/vigente'),
-          fetch('http://localhost:4000/api/nombre/vigente')
+          fetch('https://backendproyectobina2.onrender.com/api/logo/vigente'),
+          fetch('https://backendproyectobina2.onrender.com/api/nombre/vigente')
         ]);
         
         const logoData = await logoResponse.json();

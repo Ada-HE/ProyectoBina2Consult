@@ -15,7 +15,7 @@ const FormularioEslogan = () => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       mostrarAlerta('Error al obtener el token CSRF', 'error');
@@ -24,7 +24,7 @@ const FormularioEslogan = () => {
 
   const obtenerEslogan = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/eslogan', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/eslogan', { withCredentials: true });
       setEslogan(response.data.eslogan);
     } catch (error) {
       mostrarAlerta('Error al obtener el eslogan', 'error');
@@ -54,7 +54,7 @@ const FormularioEslogan = () => {
     if (!validarFormulario()) return;
 
     try {
-      await axios.post('http://localhost:4000/api/eslogan/actualizar', { eslogan: nuevoEslogan }, {
+      await axios.post('https://backendproyectobina2.onrender.com/api/eslogan/actualizar', { eslogan: nuevoEslogan }, {
         headers: {
           'CSRF-Token': csrfToken,
         },

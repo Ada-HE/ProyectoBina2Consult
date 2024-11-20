@@ -18,7 +18,7 @@ const FormularioNombreEmpresa = () => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       mostrarAlerta('Error al obtener el token CSRF', 'error');
@@ -27,8 +27,8 @@ const FormularioNombreEmpresa = () => {
 
   const obtenerNombres = async () => {
     try {
-      const responseVigente = await axios.get('http://localhost:4000/api/nombre/vigente');
-      const responseHistorial = await axios.get('http://localhost:4000/api/nombre/no-vigente');
+      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/nombre/vigente');
+      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/nombre/no-vigente');
       setNombreVigente(responseVigente.data);
       setHistorialNombres(responseHistorial.data);
     } catch (error) {
@@ -46,7 +46,7 @@ const FormularioNombreEmpresa = () => {
 
     try {
       await axios.post(
-        'http://localhost:4000/api/nombre/registrar',
+        'https://backendproyectobina2.onrender.com/api/nombre/registrar',
         { nombre },
         {
           headers: { 'CSRF-Token': csrfToken },
@@ -65,7 +65,7 @@ const FormularioNombreEmpresa = () => {
   const manejarCambioVigente = async (id) => {
     try {
       await axios.put(
-        'http://localhost:4000/api/nombre/activar',
+        'https://backendproyectobina2.onrender.com/api/nombre/activar',
         { id },
         {
           headers: { 'CSRF-Token': csrfToken },

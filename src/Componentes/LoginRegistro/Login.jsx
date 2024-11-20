@@ -26,7 +26,7 @@ function Login() {
   // Obtener CSRF Token
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('http://localhost:4000/api/get-csrf-token', {
+      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include',
       });
@@ -45,7 +45,7 @@ function Login() {
       try {
         await obtenerCsrfToken();
 
-        const response = await fetch('http://localhost:4000/api/verificar-autenticacion', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/verificar-autenticacion', {
           method: 'GET',
           credentials: 'include',
         });
@@ -102,7 +102,7 @@ function Login() {
 
     try {
       if (!showMfa) {
-        const response = await fetch('http://localhost:4000/api/login', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/login', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -138,7 +138,7 @@ function Login() {
         }
 
         if (response.ok && data.requireMfa) {
-          const qrResponse = await fetch(`http://localhost:4000/api/mfa/setup/${correo}`, {
+          const qrResponse = await fetch(`https://backendproyectobina2.onrender.com/api/mfa/setup/${correo}`, {
             method: 'GET',
           });
           const qrData = await qrResponse.json();
@@ -164,7 +164,7 @@ function Login() {
           setOpenSnackbar(true);
         }
       } else {
-        const response = await fetch('http://localhost:4000/api/mfa/verify', {
+        const response = await fetch('https://backendproyectobina2.onrender.com/api/mfa/verify', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

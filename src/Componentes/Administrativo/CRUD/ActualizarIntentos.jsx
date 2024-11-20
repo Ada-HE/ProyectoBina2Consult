@@ -14,7 +14,7 @@ const ActualizarIntentos = () => {
   useEffect(() => {
     const obtenerCsrfToken = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/get-csrf-token', { withCredentials: true });
+        const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
         setCsrfToken(response.data.csrfToken);
       } catch (err) {
         console.error('Error al obtener el token CSRF:', err);
@@ -24,7 +24,7 @@ const ActualizarIntentos = () => {
 
     const obtenerMaxIntentosActual = async () => {
       try {
-        const response = await axios.get('http://localhost:4000/api/obtener-max-intentos');
+        const response = await axios.get('https://backendproyectobina2.onrender.com/api/obtener-max-intentos');
         setMaxIntentosActual(response.data.maxIntentos);
         setLoading(false);  // Cuando ya tenemos los datos, dejamos de mostrar el spinner
       } catch (err) {
@@ -52,7 +52,7 @@ const ActualizarIntentos = () => {
     try {
       // Hacer la solicitud al backend para actualizar los intentos fallidos
       const response = await axios.post(
-        'http://localhost:4000/api/cambiar-max-intentos',
+        'https://backendproyectobina2.onrender.com/api/cambiar-max-intentos',
         { maxIntentos },
         {
           headers: {
@@ -73,7 +73,7 @@ const ActualizarIntentos = () => {
       }, 3000);
 
       // Volver a obtener el valor actualizado de los intentos
-      const maxIntentosActualizado = await axios.get('http://localhost:4000/api/obtener-max-intentos');
+      const maxIntentosActualizado = await axios.get('https://backendproyectobina2.onrender.com/api/obtener-max-intentos');
       setMaxIntentosActual(maxIntentosActualizado.data.maxIntentos);
 
     } catch (err) {
