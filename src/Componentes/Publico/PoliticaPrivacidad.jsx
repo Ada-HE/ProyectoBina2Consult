@@ -14,7 +14,7 @@ const PoliticasPrivacidad = () => {
   // Función para obtener la política vigente
   const fetchActivePolicy = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/vigente');
+      const response = await axios.get('https://localhost:4000/api/vigente');
       const newPolicy = response.data;
 
       if (!prevPolicyRef.current || JSON.stringify(prevPolicyRef.current) !== JSON.stringify(newPolicy)) {

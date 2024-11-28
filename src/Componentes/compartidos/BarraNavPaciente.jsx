@@ -18,7 +18,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
   useEffect(() => {
     const obtenerCsrfToken = async () => {
       try {
-        const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+        const response = await fetch('https://localhost:4000/api/get-csrf-token', {
           method: 'GET',
           credentials: 'include',
         });
@@ -34,7 +34,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
 
     const fetchLogoNombre = async () => {
       try {
-        const response = await axios.get('https://backendproyectobina2.onrender.com/api/logo/vigente');
+        const response = await axios.get('https://localhost:4000/api/logo/vigente');
         if (response.data) {
           setLogoNombre(response.data);
         }
@@ -49,7 +49,7 @@ const BarraNavPaciente = ({ toggleTheme, themeMode }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', {
+      const response = await fetch('https://localhost:4000/api/logout', {
         method: 'POST',
         headers: {
           'CSRF-Token': csrfToken,

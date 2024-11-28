@@ -18,7 +18,7 @@ const FormularioLogo = () => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       mostrarAlerta('Error al obtener el token CSRF', 'error');
@@ -27,8 +27,8 @@ const FormularioLogo = () => {
 
   const obtenerLogos = async () => {
     try {
-      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/logo/vigente');
-      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/logo/no-vigente');
+      const responseVigente = await axios.get('https://localhost:4000/api/logo/vigente');
+      const responseHistorial = await axios.get('https://localhost:4000/api/logo/no-vigente');
       setLogoVigente(responseVigente.data);
       setHistorialLogos(responseHistorial.data);
     } catch (error) {
@@ -52,7 +52,7 @@ const FormularioLogo = () => {
     formData.append('logo', logo);
 
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/logo/registrar', formData, {
+      await axios.post('https://localhost:4000/api/logo/registrar', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'CSRF-Token': csrfToken,
@@ -70,7 +70,7 @@ const FormularioLogo = () => {
 
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/logo/activar', { id }, {
+      await axios.put('https://localhost:4000/api/logo/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });

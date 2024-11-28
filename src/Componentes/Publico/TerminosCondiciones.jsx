@@ -14,7 +14,7 @@ const TerminosCondiciones = () => {
   // Función para obtener los términos y condiciones vigentes
   const fetchActiveTerms = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/TyC/vigente');
+      const response = await axios.get('https://localhost:4000/api/TyC/vigente');
       const newTerms = response.data;
 
       if (!prevTermsRef.current || JSON.stringify(prevTermsRef.current) !== JSON.stringify(newTerms)) {

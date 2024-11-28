@@ -14,7 +14,7 @@ const DeslindeLegal = () => {
   // Función para obtener el deslinde vigente
   const fetchActiveDeslinde = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/deslinde/vigente');
+      const response = await axios.get('https://localhost:4000/api/deslinde/vigente');
       const newDeslinde = response.data;
 
       if (!prevDeslindeRef.current || JSON.stringify(prevDeslindeRef.current) !== JSON.stringify(newDeslinde)) {

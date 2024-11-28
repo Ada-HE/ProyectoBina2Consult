@@ -31,8 +31,8 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
   const fetchLogoNombre = async () => {
     try {
       const [logoResponse, nombreResponse] = await Promise.all([
-        fetch('https://backendproyectobina2.onrender.com/api/logo/vigente'),
-        fetch('https://backendproyectobina2.onrender.com/api/nombre/vigente')
+        fetch('https://localhost:4000/api/logo/vigente'),
+        fetch('https://localhost:4000/api/nombre/vigente')
       ]);
 
       const logoData = await logoResponse.json();
@@ -66,7 +66,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+      const response = await fetch('https://localhost:4000/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include',
       });
@@ -82,7 +82,7 @@ const BarraNavAdm = ({ toggleTheme, themeMode }) => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/logout', {
+      const response = await fetch('https://localhost:4000/api/logout', {
         method: 'POST',
         credentials: 'include',
         headers: {

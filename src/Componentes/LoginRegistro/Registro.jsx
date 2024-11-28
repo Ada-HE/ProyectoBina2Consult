@@ -45,7 +45,7 @@ function Registro() {
     useEffect(() => {
         const fetchCsrfToken = async () => {
             try {
-                const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+                const response = await fetch('https://localhost:4000/api/get-csrf-token', {
                     credentials: 'include',
                 });
                 const data = await response.json();

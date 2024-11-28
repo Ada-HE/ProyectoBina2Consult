@@ -22,7 +22,7 @@ const FormularioContacto = () => {
   // Obtener el token CSRF
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       console.error('Error al obtener el token CSRF:', error);
@@ -32,7 +32,7 @@ const FormularioContacto = () => {
   // Obtener los datos de contacto
   const obtenerDatosContacto = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/contacto/ver');
+      const response = await axios.get('https://localhost:4000/api/contacto/ver');
       if (response.data.length > 0) {
         const registro = response.data[0];
         setDireccion(registro.direccion);
@@ -80,7 +80,7 @@ const FormularioContacto = () => {
     try {
       if (idRegistro) {
         // Actualizar
-        await axios.put(`https://backendproyectobina2.onrender.com/api/contacto/actualizar/${idRegistro}`, datos, {
+        await axios.put(`https://localhost:4000/api/contacto/actualizar/${idRegistro}`, datos, {
           headers: {
             'CSRF-Token': csrfToken,
             'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ const FormularioContacto = () => {
         setIsEditing(false); // Bloquear los campos después de actualizar
       } else {
         // Registrar
-        await axios.post('https://backendproyectobina2.onrender.com/api/contacto/registrar', datos, {
+        await axios.post('https://localhost:4000/api/contacto/registrar', datos, {
           headers: {
             'CSRF-Token': csrfToken,
             'Content-Type': 'application/json',

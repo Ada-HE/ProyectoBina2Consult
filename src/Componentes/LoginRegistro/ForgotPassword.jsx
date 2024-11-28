@@ -11,7 +11,7 @@ function ForgotPassword() {
   // Función para obtener el token CSRF
   const obtenerCsrfToken = async () => {
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/get-csrf-token', {
+      const response = await fetch('https://localhost:4000/api/get-csrf-token', {
         method: 'GET',
         credentials: 'include',
       });
@@ -34,7 +34,7 @@ function ForgotPassword() {
     e.preventDefault();
 
     try {
-      const response = await fetch('https://backendproyectobina2.onrender.com/api/solicitar-recuperacion', {
+      const response = await fetch('https://localhost:4000/api/solicitar-recuperacion', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

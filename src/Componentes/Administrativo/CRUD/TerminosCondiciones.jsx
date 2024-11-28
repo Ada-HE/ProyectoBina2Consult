@@ -17,7 +17,7 @@ const FormularioTerminosCondiciones = () => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       mostrarAlerta('Error al obtener el token CSRF', 'error');
@@ -26,8 +26,8 @@ const FormularioTerminosCondiciones = () => {
 
   const obtenerPoliticas = async () => {
     try {
-      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/TyC/vigente');
-      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/TyC/todas');
+      const responseVigente = await axios.get('https://localhost:4000/api/TyC/vigente');
+      const responseHistorial = await axios.get('https://localhost:4000/api/TyC/todas');
 
       setVersionActual(responseVigente.data);
       setVersiones(responseHistorial.data.filter(politica => !politica.vigente));
@@ -58,7 +58,7 @@ const FormularioTerminosCondiciones = () => {
     formData.append('file', file);
 
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/TyC/crear', formData, {
+      await axios.post('https://localhost:4000/api/TyC/crear', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'CSRF-Token': csrfToken,
@@ -75,7 +75,7 @@ const FormularioTerminosCondiciones = () => {
 
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/TyC/activar', { id }, {
+      await axios.put('https://localhost:4000/api/TyC/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
@@ -94,7 +94,7 @@ const FormularioTerminosCondiciones = () => {
 
   const guardarEdicion = async () => {
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/TyC/editar', {
+      await axios.post('https://localhost:4000/api/TyC/editar', {
         id: versionActual.id,
         titulo: versionActual.titulo,
         contenido: contenidoEditado,
@@ -113,7 +113,7 @@ const FormularioTerminosCondiciones = () => {
 
   const eliminarPolitica = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/TyC/eliminar', { id }, {
+      await axios.put('https://localhost:4000/api/TyC/eliminar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });

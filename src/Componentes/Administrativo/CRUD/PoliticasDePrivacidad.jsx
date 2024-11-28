@@ -18,7 +18,7 @@ const FormularioPoliticasPrivacidad = () => {
 
   const obtenerCsrfToken = async () => {
     try {
-      const response = await axios.get('https://backendproyectobina2.onrender.com/api/get-csrf-token', { withCredentials: true });
+      const response = await axios.get('https://localhost:4000/api/get-csrf-token', { withCredentials: true });
       setCsrfToken(response.data.csrfToken);
     } catch (error) {
       mostrarAlerta('Error al obtener el token CSRF', 'error');
@@ -27,8 +27,8 @@ const FormularioPoliticasPrivacidad = () => {
 
   const obtenerPoliticas = async () => {
     try {
-      const responseVigente = await axios.get('https://backendproyectobina2.onrender.com/api/vigente');
-      const responseHistorial = await axios.get('https://backendproyectobina2.onrender.com/api/todas');
+      const responseVigente = await axios.get('https://localhost:4000/api/vigente');
+      const responseHistorial = await axios.get('https://localhost:4000/api/todas');
 
       setVersionActual(responseVigente.data);
       setVersiones(responseHistorial.data.filter(politica => !politica.vigente));
@@ -59,7 +59,7 @@ const FormularioPoliticasPrivacidad = () => {
     formData.append('file', file);
 
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/crear', formData, {
+      await axios.post('https://localhost:4000/api/crear', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
           'CSRF-Token': csrfToken,
@@ -76,7 +76,7 @@ const FormularioPoliticasPrivacidad = () => {
 
   const manejarCambioVigente = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/activar', { id }, {
+      await axios.put('https://localhost:4000/api/activar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
@@ -95,7 +95,7 @@ const FormularioPoliticasPrivacidad = () => {
 
   const guardarEdicion = async () => {
     try {
-      await axios.post('https://backendproyectobina2.onrender.com/api/editar', {
+      await axios.post('https://localhost:4000/api/editar', {
         id: versionActual.id,
         titulo: versionActual.titulo,
         contenido: contenidoEditado,
@@ -114,7 +114,7 @@ const FormularioPoliticasPrivacidad = () => {
 
   const eliminarPolitica = async (id) => {
     try {
-      await axios.put('https://backendproyectobina2.onrender.com/api/eliminar', { id }, {
+      await axios.put('https://localhost:4000/api/eliminar', { id }, {
         headers: { 'CSRF-Token': csrfToken },
         withCredentials: true,
       });
